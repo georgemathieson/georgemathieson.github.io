@@ -44,6 +44,7 @@ Because images render greyscale, never rely on colour to carry meaning in charts
 - `content/` — posts and pages (Markdown)
 - `layouts/` — HTML templates
 - `assets/scss/` — styles, one partial per BEM block, compiled by Hugo Pipes
+  - `_colours.scss` is the colour system: raw primitives feed per-theme maps of semantic tokens, emitted as `--colour-*` custom properties by a mixin. Components only ever use `var(--colour-*)`. Dark mode follows `prefers-color-scheme` — no JavaScript, no toggle. When changing a primitive, re-check the contrast ratios documented in that file (both themes must hold WCAG AA).
 - `static/` — files copied verbatim into the site root (CNAME lives here)
 
 ## Deployment

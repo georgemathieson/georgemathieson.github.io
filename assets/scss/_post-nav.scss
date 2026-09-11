@@ -1,11 +1,11 @@
 .post-nav {
     margin-top: ($space * 3);
     padding-top: ($space * 1.5);
-    border-top: 1px solid $colour-ink;
+    border-top: 1px solid var(--colour-border-strong);
 
     &__heading {
         font-size: 1rem;
-        color: $colour-muted;
+        color: var(--colour-text-muted);
         margin: 0 0 $space;
     }
 
@@ -15,7 +15,7 @@
         text-decoration: none;
 
         &:hover .post-nav__title {
-            color: $colour-accent-dark;
+            color: var(--colour-accent-hover);
             text-decoration: underline;
         }
     }
@@ -24,11 +24,11 @@
         display: inline-block;
         min-width: 3.5rem;
         font-size: 0.875rem;
-        color: $colour-muted;
+        color: var(--colour-text-muted);
     }
 
     &__title {
-        color: $colour-accent;
+        color: var(--colour-accent);
         font-weight: 700;
     }
 }

@@ -5,15 +5,15 @@
     gap: $space;
     padding-bottom: $space;
     margin-bottom: ($space * 2);
-    border-bottom: 1px solid $colour-ink;
+    border-bottom: 1px solid var(--colour-border-strong);
 
     &__name {
-        color: $colour-ink;
+        color: var(--colour-text);
         font-weight: 700;
         text-decoration: none;
 
         &:hover {
-            color: $colour-accent;
+            color: var(--colour-accent);
         }
     }
 
@@ -23,7 +23,7 @@
     }
 
     &__link {
-        color: $colour-ink;
+        color: var(--colour-text);
         font-size: 0.9375rem;
         text-decoration: none;
         // Enlarge the touch target (WCAG 2.5.8) without shifting layout.
@@ -31,7 +31,7 @@
         margin: ($space * -0.5);
 
         &:hover {
-            color: $colour-accent;
+            color: var(--colour-accent);
             text-decoration: underline;
         }
 

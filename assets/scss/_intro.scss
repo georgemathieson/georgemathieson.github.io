@@ -9,8 +9,8 @@
 .home-posts {
     &__heading {
         font-size: 1rem;
-        color: $colour-muted;
-        border-bottom: 1px solid $colour-rule;
+        color: var(--colour-text-muted);
+        border-bottom: 1px solid var(--colour-border);
         padding-bottom: ($space * 0.5);
     }
 }
