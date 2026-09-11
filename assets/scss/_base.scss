@@ -10,7 +10,7 @@ html {
 
 body {
     margin: 0 auto;
-    padding: ($space * 2) ($space * 1.25) ($space * 4);
+    padding: $space-32 $space-16 $space-64;
     max-width: $measure;
     background: var(--colour-surface);
     color: var(--colour-text);
@@ -24,12 +24,12 @@ h1,
 h2,
 h3 {
     line-height: 1.25;
-    margin: ($space * 2) 0 $space;
+    margin: $space-32 0 $space-16;
     text-wrap: balance;
 }
 
 p {
-    margin: 0 0 $space;
+    margin: 0 0 $space-16;
 }
 
 p,
@@ -67,7 +67,7 @@ code {
 
 pre {
     background: var(--colour-surface-raised);
-    padding: $space;
+    padding: $space-16;
     overflow-x: auto;
 
     code {
@@ -77,8 +77,8 @@ pre {
 }
 
 blockquote {
-    margin: $space 0;
-    padding-left: $space;
+    margin: $space-16 0;
+    padding-left: $space-16;
     border-left: 3px solid var(--colour-border-strong);
     color: var(--colour-text-muted);
 }
@@ -86,7 +86,7 @@ blockquote {
 hr {
     border: 0;
     border-top: 1px solid var(--colour-border);
-    margin: ($space * 2) 0;
+    margin: $space-32 0;
 }
 
 // Off-screen but available to assistive technology.
@@ -109,10 +109,10 @@ hr {
     &:focus {
         position: static;
         display: inline-block;
-        padding: 0.25rem 0.5rem;
+        padding: $space-4 $space-8;
     }
 }
 
 .page-title {
-    margin-top: $space;
+    margin-top: $space-16;
 }

@@ -9,7 +9,16 @@ $line-height-base: 1.7;
 // Layout — ~68 characters per line at the base size, the comfortable
 // upper bound for sustained reading.
 $measure: 40rem;
-$space: 1rem;
+
+// Spacing scale — 4, 8, 16, 32, 64px, held in rems. Every gap, margin
+// and padding snaps to one of these. Prefer gap for spacing flex/grid
+// siblings; prose flow (paragraphs, headings, lists) keeps margins so
+// margin collapsing can do its job.
+$space-4: 0.25rem;
+$space-8: 0.5rem;
+$space-16: 1rem;
+$space-32: 2rem;
+$space-64: 4rem;
 
 // Breakpoints
 $bp-small: 600px;

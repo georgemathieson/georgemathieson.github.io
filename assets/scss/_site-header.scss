@@ -2,9 +2,9 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: $space;
-    padding-bottom: $space;
-    margin-bottom: ($space * 2);
+    gap: $space-16;
+    padding-bottom: $space-16;
+    margin-bottom: $space-32;
     border-bottom: 1px solid var(--colour-border-strong);
 
     &__name {
@@ -19,7 +19,7 @@
 
     &__nav {
         display: flex;
-        gap: $space;
+        gap: $space-16;
     }
 
     &__link {
@@ -27,8 +27,8 @@
         font-size: 0.9375rem;
         text-decoration: none;
         // Enlarge the touch target (WCAG 2.5.8) without shifting layout.
-        padding: ($space * 0.5);
-        margin: ($space * -0.5);
+        padding: $space-8;
+        margin: -$space-8;
 
         &:hover {
             color: var(--colour-accent);
