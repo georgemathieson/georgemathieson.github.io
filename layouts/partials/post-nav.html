@@ -1,0 +1,22 @@
+{{ $older := .PrevInSection }}
+{{ $newer := .NextInSection }}
+<nav class="post-nav" aria-label="More posts">
+    <h2 class="post-nav__heading">Keep reading</h2>
+    {{ with $newer }}
+    <a class="post-nav__link" href="{{ .RelPermalink }}">
+        <span class="post-nav__label">Newer</span>
+        <span class="post-nav__title">{{ .Title }}</span>
+    </a>
+    {{ end }}
+    {{ with $older }}
+    <a class="post-nav__link" href="{{ .RelPermalink }}">
+        <span class="post-nav__label">Older</span>
+        <span class="post-nav__title">{{ .Title }}</span>
+    </a>
+    {{ end }}
+    {{ if and (not $older) (not $newer) }}
+    <a class="post-nav__link" href="{{ "/posts/" | relURL }}">
+        <span class="post-nav__title">Browse all posts</span>
+    </a>
+    {{ end }}
+</nav>

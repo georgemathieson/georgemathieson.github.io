@@ -1,0 +1,36 @@
+.post-nav {
+    margin-top: ($space * 3);
+    padding-top: ($space * 1.5);
+    border-top: 1px solid $colour-ink;
+
+    &__heading {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $colour-muted;
+        margin: 0 0 $space;
+    }
+
+    &__link {
+        display: block;
+        margin-bottom: ($space * 0.75);
+        text-decoration: none;
+
+        &:hover .post-nav__title {
+            color: $colour-accent-dark;
+            text-decoration: underline;
+        }
+    }
+
+    &__label {
+        display: inline-block;
+        min-width: 3.5rem;
+        font-size: 0.875rem;
+        color: $colour-muted;
+    }
+
+    &__title {
+        color: $colour-accent;
+        font-weight: 700;
+    }
+}

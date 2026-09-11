@@ -1,0 +1,99 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    color-scheme: light;
+}
+
+body {
+    margin: 0 auto;
+    padding: ($space * 2) ($space * 1.25) ($space * 4);
+    max-width: $measure;
+    background: $colour-paper;
+    color: $colour-ink;
+    font-family: $font-stack;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+    line-height: 1.25;
+    margin: ($space * 2) 0 $space;
+}
+
+p {
+    margin: 0 0 $space;
+}
+
+a {
+    color: $colour-accent;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+
+    &:hover {
+        color: $colour-accent-dark;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $colour-accent;
+        outline-offset: 2px;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+code {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, Menlo,
+        monospace;
+    font-size: 0.9em;
+    background: #f4f4f4;
+    padding: 0.15em 0.35em;
+}
+
+pre {
+    background: #f4f4f4;
+    padding: $space;
+    overflow-x: auto;
+
+    code {
+        background: none;
+        padding: 0;
+    }
+}
+
+blockquote {
+    margin: $space 0;
+    padding-left: $space;
+    border-left: 3px solid $colour-ink;
+    color: $colour-muted;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid $colour-rule;
+    margin: ($space * 2) 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+
+    &:focus {
+        position: static;
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+.page-title {
+    margin-top: $space;
+}

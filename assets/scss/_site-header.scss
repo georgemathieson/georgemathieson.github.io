@@ -1,0 +1,35 @@
+.site-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $space;
+    padding-bottom: $space;
+    margin-bottom: ($space * 2);
+    border-bottom: 1px solid $colour-ink;
+
+    &__name {
+        color: $colour-ink;
+        font-weight: 700;
+        text-decoration: none;
+
+        &:hover {
+            color: $colour-accent;
+        }
+    }
+
+    &__nav {
+        display: flex;
+        gap: $space;
+    }
+
+    &__link {
+        color: $colour-ink;
+        font-size: 0.9375rem;
+        text-decoration: none;
+
+        &:hover {
+            color: $colour-accent;
+            text-decoration: underline;
+        }
+    }
+}

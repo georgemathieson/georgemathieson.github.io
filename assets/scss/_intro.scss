@@ -1,0 +1,18 @@
+.intro {
+    margin-bottom: ($space * 2.5);
+
+    p {
+        font-size: 1.1875rem;
+    }
+}
+
+.home-posts {
+    &__heading {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $colour-muted;
+        border-bottom: 1px solid $colour-rule;
+        padding-bottom: ($space * 0.5);
+    }
+}

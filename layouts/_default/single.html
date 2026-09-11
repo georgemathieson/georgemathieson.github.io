@@ -1,0 +1,27 @@
+{{ define "main" }}
+<article class="post">
+    <header class="post__header">
+        <h1 class="post__title">{{ .Title }}</h1>
+        {{ if eq .Section "posts" }}
+        <div class="post__meta">
+            <time class="post__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 January 2006" }}</time>
+            {{ with .GetTerms "tags" }}
+            <ul class="post__tags">
+                {{ range . }}
+                <li class="post__tag"><a class="post__tag-link" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a></li>
+                {{ end }}
+            </ul>
+            {{ end }}
+        </div>
+        {{ end }}
+    </header>
+
+    <div class="post__content">
+        {{ .Content }}
+    </div>
+</article>
+
+{{ if eq .Section "posts" }}
+{{ partial "post-nav.html" . }}
+{{ end }}
+{{ end }}
