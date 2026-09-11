@@ -1,6 +1,6 @@
 .site-footer {
-    margin-top: ($space * 4);
-    padding-top: $space;
+    margin-top: $space-64;
+    padding-top: $space-16;
     border-top: 1px solid var(--colour-border);
 
     &__text {

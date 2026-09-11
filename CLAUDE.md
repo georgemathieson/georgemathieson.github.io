@@ -34,6 +34,10 @@ pushes to `main`. See README.md for build and authoring mechanics.
   with mixed units in `unquote(...)`.
 - Typography: 40rem measure, no uppercase transforms, no letter-spacing
   on lowercase text, `text-wrap` balance/pretty stay on.
+- Spacing snaps to the 4/8/16/32/64px scale, held in rems
+  (`$space-4` … `$space-64` in `_variables.scss`) — no off-scale
+  values. Prefer `gap` for spacing flex/grid siblings; prose flow
+  (paragraphs, headings, lists) keeps margins so collapsing works.
 - Images: greyscale, breaking out to 64rem, captions via markdown title
   syntax, page bundles with responsive resizes. Meaningful alt text
   always; never let colour carry meaning in an image.
