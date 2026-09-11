@@ -37,6 +37,13 @@ pushes to `main`. See README.md for build and authoring mechanics.
 - Images: greyscale, breaking out to 64rem, captions via markdown title
   syntax, page bundles with responsive resizes. Meaningful alt text
   always; never let colour carry meaning in an image.
+- The favicon is the flask (`static/favicon.svg`): outline in the ink
+  primitives (#111111, #e6e6e6 in dark via its embedded media query),
+  liquid in the teal accent (#008080). When it changes, regenerate the
+  raster variants from the same artwork (`favicon.ico` 32px on a white
+  tile, `apple-touch-icon.png` 180px on a white tile) so all three stay
+  identical. `theme-color` matches the page surface (white / #111111),
+  never the accent — the browser chrome should dissolve into the page.
 
 ## Accessibility
 
