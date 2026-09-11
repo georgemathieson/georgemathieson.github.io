@@ -1,0 +1,13 @@
+{{- /*
+Markdown image hook: ![alt](src "caption").
+A title becomes a <figcaption>; without one, the image stands alone.
+*/ -}}
+{{- $img := partial "post-image.html" (dict "page" .Page "src" .Destination "alt" .Text) -}}
+{{- with .Title -}}
+<figure>
+    {{ $img }}
+    <figcaption>{{ . | markdownify }}</figcaption>
+</figure>
+{{- else -}}
+{{ $img }}
+{{- end -}}

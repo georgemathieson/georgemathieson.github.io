@@ -12,8 +12,9 @@ $font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
 $font-size-base: 1.0625rem;
 $line-height-base: 1.7;
 
-// Layout
-$measure: 42rem;
+// Layout — ~68 characters per line at the base size, the comfortable
+// upper bound for sustained reading.
+$measure: 40rem;
 $space: 1rem;
 
 // Breakpoints

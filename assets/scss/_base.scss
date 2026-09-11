@@ -25,10 +25,16 @@ h2,
 h3 {
     line-height: 1.25;
     margin: ($space * 2) 0 $space;
+    text-wrap: balance;
 }
 
 p {
     margin: 0 0 $space;
+}
+
+p,
+li {
+    text-wrap: pretty;
 }
 
 a {

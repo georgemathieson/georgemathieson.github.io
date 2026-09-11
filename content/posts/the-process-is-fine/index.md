@@ -9,6 +9,8 @@ Do you know how hard it is to hang wardrobe doors? I do, because I once spent an
 
 There was no missed step. The manual was fine. The wardrobe was fine. My bedroom floor, it turned out, dips about fifteen millimetres towards the window, because Victorian builders were artists and artists don't own spirit levels. No amount of re-reading the instructions was ever going to fix that.
 
+![An artist's impression of a bedroom floor sloping gently but decisively towards a window](floor.png "The floor in question, as remembered. Not pictured: the spirit level I did not own.")
+
 I think about that wardrobe every time a team tells me their process is fine.
 
 ## The symptoms

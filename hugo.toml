@@ -12,3 +12,8 @@ description = "Notes from my journey in software development — building things
 
 [markup.goldmark.renderer]
 unsafe = false
+
+# Standalone images become <figure> blocks (see render-image.html), which
+# is invalid inside <p>, so stop Goldmark wrapping them.
+[markup.goldmark.parser]
+wrapStandAloneImageWithinParagraph = false
