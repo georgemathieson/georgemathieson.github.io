@@ -47,7 +47,17 @@ jobs:
               exit 1
             fi
           done
-          axe "${URLS[@]}" \
-            --tags wcag2a,wcag2aa,wcag21aa,wcag22aa \
-            --chromedriver-path "${CHROMEWEBDRIVER}/chromedriver" \
-            --exit
+          # Scan both colour schemes: axe's contrast rule checks rendered
+          # colours, so the dark pass validates the dark theme's tokens.
+          for scheme in light dark; do
+            EXTRA=()
+            if [ "${scheme}" = "dark" ]; then
+              EXTRA=(--chrome-options "force-dark-mode")
+            fi
+            echo "=== axe scan (${scheme} scheme) ==="
+            axe "${URLS[@]}" \
+              --tags wcag2a,wcag2aa,wcag21aa,wcag22aa \
+              --chromedriver-path "${CHROMEWEBDRIVER}/chromedriver" \
+              "${EXTRA[@]}" \
+              --exit
+          done
