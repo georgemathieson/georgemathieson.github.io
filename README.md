@@ -19,6 +19,24 @@ hugo new posts/my-post-title.md
 
 Posts start as drafts (`draft: true`). Fill in `tags` and a one-line `summary` (shown on the homepage and posts list), write, then flip `draft` to `false` to publish.
 
+## Adding images
+
+Give the post a folder (a page bundle) and put images next to it:
+
+```
+content/posts/my-post/
+├── index.md
+└── photo.jpg
+```
+
+Then reference them with plain Markdown; a title becomes the caption:
+
+```markdown
+![Alt text describing the image](photo.jpg "An optional caption.")
+```
+
+Every image breaks out wider than the text column (up to 64rem), renders greyscale to match the palette, and — for raster images in the bundle — is automatically resized into a responsive `srcset` with lazy loading and explicit dimensions. Captioned images render as `<figure>`/`<figcaption>`. Always write meaningful alt text.
+
 ## Structure
 
 - `content/` — posts and pages (Markdown)

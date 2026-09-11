@@ -44,6 +44,35 @@
     }
 
     &__content {
+        // Images break out of the text measure, up to 64rem, and render
+        // greyscale so photos stay on the site's monochrome palette.
+        img {
+            display: block;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            height: auto;
+            max-width: unquote("min(64rem, calc(100vw - 2.5rem))");
+            filter: grayscale(1);
+            margin: ($space * 2.5) 0;
+        }
+
+        figure {
+            margin: ($space * 2.5) 0;
+
+            img {
+                margin: 0;
+            }
+
+            figcaption {
+                margin-top: ($space * 0.75);
+                font-size: 0.875rem;
+                color: $colour-muted;
+                text-align: center;
+            }
+        }
+
         h2 {
             font-size: 1.5rem;
         }

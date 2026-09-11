@@ -1,0 +1,32 @@
+{{- /*
+Renders a post image. If the source is a page resource (raster image in the
+post's bundle), emit responsive resizes with srcset and explicit dimensions;
+otherwise (SVG, static file, remote URL) emit a plain img.
+Params: page, src, alt
+*/ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $alt := .alt -}}
+{{- $img := "" -}}
+{{- if not (hasPrefix $src "http") -}}
+    {{- $img = $page.Resources.GetMatch $src -}}
+{{- end -}}
+{{- if and $img (ne $img.MediaType.SubType "svg") -}}
+    {{- $ws := slice -}}
+    {{- range slice 480 800 1280 -}}
+        {{- if lt . $img.Width -}}{{- $ws = $ws | append . -}}{{- end -}}
+    {{- end -}}
+    {{- $ws = $ws | append $img.Width -}}
+    {{- $srcset := slice -}}
+    {{- range $ws -}}
+        {{- $r := $img.Resize (printf "%dx" .) -}}
+        {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink .) -}}
+    {{- end -}}
+    <img src="{{ $img.RelPermalink }}"
+        srcset="{{ delimit $srcset ", " }}"
+        sizes="(min-width: 67rem) 64rem, calc(100vw - 2.5rem)"
+        width="{{ $img.Width }}" height="{{ $img.Height }}"
+        alt="{{ $alt }}" loading="lazy" decoding="async">
+{{- else -}}
+    <img src="{{ $src }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+{{- end -}}
