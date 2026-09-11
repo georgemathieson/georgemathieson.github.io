@@ -1,0 +1,53 @@
+name: Accessibility checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: "0.148.2"
+    steps:
+      - name: Install Hugo CLI
+        run: |
+          wget -O "${{ runner.temp }}/hugo.deb" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i "${{ runner.temp }}/hugo.deb"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build site
+        run: hugo --minify --baseURL "http://localhost:8080/"
+      - name: Install axe CLI
+        run: npm install -g @axe-core/cli
+      - name: Run axe against WCAG A/AA rules
+        run: |
+          python3 -m http.server 8080 --directory public &
+          sleep 2
+          # Scan the fixed pages plus the first post found in the build,
+          # so the check keeps working as posts come and go.
+          POST_PATH=$(find public/posts -mindepth 2 -maxdepth 2 -name index.html | head -1 | sed 's|^public||;s|index\.html$||')
+          URLS=(
+            "http://localhost:8080/"
+            "http://localhost:8080/posts/"
+            "http://localhost:8080/about/"
+            "http://localhost:8080/tags/"
+            "http://localhost:8080${POST_PATH}"
+          )
+          # A page that 404s would still be "scanned" happily, so refuse
+          # to run axe against anything that isn't a real page.
+          for url in "${URLS[@]}"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+            echo "${code} ${url}"
+            if [ "${code}" != "200" ]; then
+              echo "::error::${url} returned ${code}; refusing to scan"
+              exit 1
+            fi
+          done
+          axe "${URLS[@]}" \
+            --tags wcag2a,wcag2aa,wcag21aa,wcag22aa \
+            --chromedriver-path "${CHROMEWEBDRIVER}/chromedriver" \
+            --exit
