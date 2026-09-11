@@ -30,9 +30,24 @@ jobs:
           # Scan the fixed pages plus the first post found in the build,
           # so the check keeps working as posts come and go.
           POST_PATH=$(find public/posts -mindepth 2 -maxdepth 2 -name index.html | head -1 | sed 's|^public||;s|index\.html$||')
-          URLS="http://localhost:8080/,http://localhost:8080/posts/,http://localhost:8080/about/,http://localhost:8080/tags/,http://localhost:8080${POST_PATH}"
-          echo "Scanning: ${URLS}"
-          axe "${URLS}" \
+          URLS=(
+            "http://localhost:8080/"
+            "http://localhost:8080/posts/"
+            "http://localhost:8080/about/"
+            "http://localhost:8080/tags/"
+            "http://localhost:8080${POST_PATH}"
+          )
+          # A page that 404s would still be "scanned" happily, so refuse
+          # to run axe against anything that isn't a real page.
+          for url in "${URLS[@]}"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url")
+            echo "${code} ${url}"
+            if [ "${code}" != "200" ]; then
+              echo "::error::${url} returned ${code}; refusing to scan"
+              exit 1
+            fi
+          done
+          axe "${URLS[@]}" \
             --tags wcag2a,wcag2aa,wcag21aa,wcag22aa \
             --chromedriver-path "${CHROMEWEBDRIVER}/chromedriver" \
             --exit
