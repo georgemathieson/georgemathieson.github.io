@@ -26,10 +26,18 @@
         color: $colour-ink;
         font-size: 0.9375rem;
         text-decoration: none;
+        // Enlarge the touch target (WCAG 2.5.8) without shifting layout.
+        padding: ($space * 0.5);
+        margin: ($space * -0.5);
 
         &:hover {
             color: $colour-accent;
             text-decoration: underline;
+        }
+
+        &[aria-current="page"] {
+            text-decoration: underline;
+            text-underline-offset: 0.15em;
         }
     }
 }
