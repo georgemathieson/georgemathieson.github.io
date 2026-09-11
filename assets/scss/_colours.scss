@@ -1,0 +1,70 @@
+// Colour system: primitives -> semantic tokens -> components.
+//
+// Primitives are raw values with no meaning attached; nothing outside
+// this file may reference them. Components use the semantic custom
+// properties exclusively (var(--colour-*)), which flip with the
+// reader's preferred colour scheme.
+
+// --- Primitives ---
+
+$white: #ffffff;
+
+$grey-100: #f4f4f4;
+$grey-150: #e6e6e6;
+$grey-300: #dddddd;
+$grey-400: #9e9e9e;
+$grey-600: #595959;
+$grey-800: #2e2e2e;
+$grey-850: #1f1f1f;
+$grey-900: #111111;
+
+$teal-300: #4db6ac;
+$teal-400: #26a69a;
+$teal-500: #008080;
+$teal-700: #005f5f;
+
+// --- Semantic tokens ---
+//
+// Contrast against each theme's surface (WCAG AA needs 4.5:1 for text,
+// 3:1 for non-text):
+//   light: text 18.9:1 · text-muted 7.0:1 · accent 4.8:1 · accent-hover 7.5:1
+//   dark:  text 14.9:1 · text-muted 6.9:1 · accent 6.2:1 · accent-hover 7.6:1
+// Re-check these numbers when changing any primitive an entry points at.
+
+$theme-light: (
+    surface: $white,
+    surface-raised: $grey-100,
+    text: $grey-900,
+    text-muted: $grey-600,
+    accent: $teal-500,
+    accent-hover: $teal-700,
+    border: $grey-300,
+    border-strong: $grey-900,
+);
+
+$theme-dark: (
+    surface: $grey-900,
+    surface-raised: $grey-850,
+    text: $grey-150,
+    text-muted: $grey-400,
+    accent: $teal-400,
+    accent-hover: $teal-300,
+    border: $grey-800,
+    border-strong: $grey-150,
+);
+
+@mixin colour-tokens($theme) {
+    @each $name, $value in $theme {
+        --colour-#{$name}: #{$value};
+    }
+}
+
+:root {
+    @include colour-tokens($theme-light);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        @include colour-tokens($theme-dark);
+    }
+}

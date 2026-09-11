@@ -11,11 +11,11 @@
         display: inline-block;
         font-size: 1.25rem;
         font-weight: 700;
-        color: $colour-ink;
+        color: var(--colour-text);
         text-decoration: none;
 
         &:hover {
-            color: $colour-accent;
+            color: var(--colour-accent);
             text-decoration: underline;
         }
     }
@@ -23,12 +23,12 @@
     &__date {
         display: block;
         font-size: 0.875rem;
-        color: $colour-muted;
+        color: var(--colour-text-muted);
         margin: 0.15rem 0 0.35rem;
     }
 
     &__summary {
         margin: 0;
-        color: $colour-ink;
+        color: var(--colour-text);
     }
 }
