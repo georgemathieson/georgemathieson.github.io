@@ -1,0 +1,10 @@
+{{ define "main" }}
+<section class="intro">
+    {{ .Content }}
+</section>
+
+<section class="home-posts">
+    <h2 class="home-posts__heading">Latest posts</h2>
+    {{ partial "post-list.html" (where site.RegularPages "Section" "posts") }}
+</section>
+{{ end }}

@@ -1,0 +1,14 @@
+baseURL = "https://george.science/"
+languageCode = "en-gb"
+title = "George Mathieson"
+enableRobotsTXT = true
+capitalizeListTitles = false
+
+[taxonomies]
+tag = "tags"
+
+[params]
+description = "Notes from my journey in software development — building things, shipping them, and figuring out what actually matters along the way."
+
+[markup.goldmark.renderer]
+unsafe = false

@@ -1,0 +1,20 @@
+// Colour — black and white, with a single teal accent.
+$colour-ink: #111111;
+$colour-paper: #ffffff;
+$colour-muted: #595959;
+$colour-accent: #008080;
+$colour-accent-dark: #005f5f;
+$colour-rule: #dddddd;
+
+// Type
+$font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+$font-size-base: 1.0625rem;
+$line-height-base: 1.7;
+
+// Layout
+$measure: 42rem;
+$space: 1rem;
+
+// Breakpoints
+$bp-small: 600px;
