@@ -1,14 +1,12 @@
 ---
 title: "Show Me the Impact"
-date: 2026-09-11
-draft: true
+date: 2026-07-02
 tags: [delivery, metrics]
 summary: "Outputs are easy to count. Outcomes are what matter. Notes on measuring whether the work we ship actually changed anything."
 ---
 
-<!-- Draft stub — outline to write into. Delete these notes as you go. -->
 
-Draft notes:
+*This one is still being written — here is the shape of it:*
 
 - The trap: teams measure busyness — velocity, tickets closed, story points burned — and mistake it for progress.
 - Nobody outside the team cares about any of those numbers. What did the work *change*?

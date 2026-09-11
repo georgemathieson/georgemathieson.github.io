@@ -1,14 +1,12 @@
 ---
 title: "What a Delivery Coach Taught Me About Shipping"
 date: 2026-09-11
-draft: true
 tags: [delivery, teams]
 summary: "The best lessons I've learned about shipping software didn't come from an engineer. Notes on what a delivery coach sees that developers don't."
 ---
 
-<!-- Draft stub — outline to write into. Delete these notes as you go. -->
 
-Draft notes:
+*This one is still being written — here is the shape of it:*
 
 - Set the scene: where the lesson came from, and why it stuck.
 - Developers optimise the work; a good delivery coach optimises the *flow* of work — queues, hand-offs, and waiting, not typing speed.
