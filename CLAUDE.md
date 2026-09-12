@@ -63,6 +63,12 @@ pushes to `main`. See README.md for build and authoring mechanics.
 - British English throughout.
 - No em dashes or en dashes in post content — George finds them
   distracting. Use commas, colons, parentheses, or full stops.
+- No emoji in post content, headings, or front matter. They break the
+  monochrome palette that the whole design is built on (we greyscale
+  photographs for the same reason), they glare against the dark theme,
+  and the deadpan voice reads better undecorated. Emoji are fine
+  outside the site itself: commit messages, PR descriptions, the
+  README, and anywhere George is writing as himself.
 - Voice: first person, conversational, quirky. Posts open with a
   concrete, slightly absurd personal anecdote that snaps into the
   point (the Monzo money-book style). Content themes lean on delivery,
