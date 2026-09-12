@@ -47,6 +47,13 @@ pushes to `main`. See README.md for build and authoring mechanics.
   (`--image-brightness`) so a bright photo does not glare. Meaningful
   alt text always; never let colour carry meaning in an image, which
   is a colour-blindness rule and still applies.
+- Share cards are generated per page at build time
+  (`layouts/partials/og-image.html`): the base artwork
+  `assets/images/og-base.png` with the page title and the domain drawn
+  onto it. Work Sans lives in `assets/fonts/` for that drawing only; it
+  is never served to a browser, so the site still loads no webfonts.
+  Keep the card monochrome with the teal rule, and re-render the base
+  if the favicon artwork changes.
 - The favicon is the flask (`static/favicon.svg`): outline in the ink
   primitives (#111111, #e6e6e6 in dark via its embedded media query),
   liquid in the teal accent (#008080). When it changes, regenerate the
