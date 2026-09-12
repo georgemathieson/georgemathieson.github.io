@@ -35,9 +35,14 @@ pushes to `main`. See README.md for build and authoring mechanics.
   Every other page still ships zero JavaScript; keep it that way unless
   George says otherwise. Any animation must skip entirely under
   `prefers-reduced-motion`, must never animate the colour or opacity of
-  text (contrast has to hold mid-animation, and CI checks it), must
-  never leave content hidden if it stalls, and should play once per
-  session rather than on every visit.
+  text (contrast has to hold mid-animation, and CI checks it), and must
+  never leave content hidden if it stalls.
+- Looping motion is only ever started by the reader (hover or focus),
+  never on its own. WCAG 2.2.2 requires a way to pause motion that
+  starts automatically and runs past five seconds, and axe cannot
+  detect that, so CI would stay green while the site quietly missed
+  its own AA bar. Motion that does start on its own (the power-on)
+  runs once per session and is over in well under a second.
 - SCSS uses BEM class naming, one partial per block. Hugo compiles it
   with libsass, so use `@import` (not `@use`) and wrap CSS functions
   with mixed units in `unquote(...)`.

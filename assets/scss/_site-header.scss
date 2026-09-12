@@ -42,8 +42,21 @@
         pointer-events: none;
     }
 
+    // Static, for the tracking glitch on hover. Greyscale noise so the
+    // interface keeps its monochrome, invisible until the script drives
+    // it, and never in the way of a pointer.
+    &__name-fizz {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 120px 120px;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-        &__name-beam {
+        &__name-beam,
+        &__name-fizz {
             display: none;
         }
     }
