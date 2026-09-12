@@ -1,0 +1,51 @@
+{{- /*
+    Builds this page's share card and returns its absolute URL.
+
+    The card is the base artwork (flask, rule) with the page's title and
+    the domain drawn onto it at build time. Work Sans is committed for
+    this purpose only: it is used by Hugo to draw the image and is never
+    served to a browser, so the site still loads no webfonts.
+*/ -}}
+
+{{- $base := resources.Get "images/og-base.png" -}}
+{{- $bold := resources.Get "fonts/WorkSans-Bold.ttf" -}}
+{{- $regular := resources.Get "fonts/WorkSans-Regular.ttf" -}}
+
+{{- $title := cond .IsHome site.Title .Title -}}
+
+{{- /* images.Text does not wrap, so break the title into lines that fit
+       the card, and keep at most three of them. */ -}}
+{{- $limit := 26 -}}
+{{- $lines := slice -}}
+{{- $current := "" -}}
+{{- range (split $title " ") -}}
+    {{- $candidate := cond (eq $current "") . (printf "%s %s" $current .) -}}
+    {{- if and (gt (len $candidate) $limit) (ne $current "") -}}
+        {{- $lines = $lines | append $current -}}
+        {{- $current = . -}}
+    {{- else -}}
+        {{- $current = $candidate -}}
+    {{- end -}}
+{{- end -}}
+{{- $lines = $lines | append $current -}}
+{{- if gt (len $lines) 3 -}}
+    {{- $lines = (first 2 $lines) | append (printf "%s..." (index $lines 2)) -}}
+{{- end -}}
+
+{{- $card := $base.Filter (slice
+        (images.Text (delimit $lines "\n") (dict
+            "color" "#111111"
+            "size" 62
+            "x" 80
+            "y" 200
+            "font" $bold
+            "linespacing" 20))
+        (images.Text "george.science" (dict
+            "color" "#595959"
+            "size" 26
+            "x" 80
+            "y" 534
+            "font" $regular))
+    ) -}}
+
+{{- return $card.Permalink -}}

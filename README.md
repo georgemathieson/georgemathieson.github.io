@@ -45,6 +45,7 @@ Images are dimmed slightly in dark mode so a bright photo does not glare. Never 
 - `layouts/` — HTML templates
 - `assets/scss/` — styles, one partial per BEM block, compiled by Hugo Pipes
   - `_colours.scss` is the colour system: raw primitives feed per-theme maps of semantic tokens, emitted as `--colour-*` custom properties by a mixin. Components only ever use `var(--colour-*)`. Dark mode follows `prefers-color-scheme` — no JavaScript, no toggle. When changing a primitive, re-check the contrast ratios documented in that file (both themes must hold WCAG AA).
+- `assets/images/og-base.png` — base artwork for share cards; `assets/fonts/` holds the font Hugo draws titles with (build-time only, never served)
 - `static/` — files copied verbatim into the site root (CNAME lives here)
 
 ## Deployment
