@@ -13,3 +13,12 @@
 {{ end -}}
 {{ $style := resources.Get "scss/main.scss" | css.Sass | resources.Minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+{{- /* The homepage wordmark animation is the site's only JavaScript, and
+     it is served from this domain rather than a CDN so no page makes a
+     third-party request. Every other page ships none of this. */ -}}
+{{ if .IsHome }}
+{{- $gsap := resources.Get "js/vendor/gsap.min.js" | fingerprint -}}
+{{- $crt := resources.Get "js/crt.js" | resources.Minify | fingerprint -}}
+<script defer src="{{ $gsap.RelPermalink }}" integrity="{{ $gsap.Data.Integrity }}"></script>
+<script defer src="{{ $crt.RelPermalink }}" integrity="{{ $crt.Data.Integrity }}"></script>
+{{ end }}
