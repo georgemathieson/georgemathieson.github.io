@@ -2,12 +2,12 @@
 title: "The Process Is Fine (Everything Is Late)"
 date: 2026-09-11T06:00:00+00:00
 tags: [delivery, flow, process]
-summary: "The ceremonies all happen, the board is immaculate, and the deadlines are still whooshing past. A post about wonky floors, parcel tracking, and why your process audit keeps coming back clean."
+summary: "The ceremonies all happen, the board is immaculate, and the deadlines still whoosh past. Two honest questions to ask before you change your process again."
 ---
 
-Do you know how hard it is to hang wardrobe doors? I do, because I once spent an entire Sunday assembling a flat-pack wardrobe. Every screw in the right hole, every cam lock turned to exactly the little arrow. The doors would not line up. One sat a centimetre proud of the other, like a tooth that had given up. I went back through the manual three times looking for the step I'd missed.
+Do you know how hard it is to hang wardrobe doors? I do, because I once spent an entire Sunday assembling a flat-pack wardrobe. Every screw in the right hole, every cam lock turned to exactly the little arrow. The doors would not line up. One sat a centimetre proud of the other.
 
-There was no missed step. The manual was fine. The wardrobe was fine. My bedroom floor, it turned out, dips about fifteen millimetres towards the window, because Victorian builders were artists and artists don't own spirit levels. No amount of re-reading the instructions was ever going to fix that.
+There was no missed step. The manual was fine. The wardrobe was fine. My bedroom floor, it turned out, dips towards the window because Victorian builders were artists and artists don't own spirit levels. No amount of re-reading the instructions was ever going to fix that.
 
 ![An artist's impression of a bedroom floor sloping gently but decisively towards a window](floor.png "The floor in question, as remembered. Not pictured: the spirit level I did not own.")
 
@@ -15,31 +15,36 @@ I think about that wardrobe every time a team tells me their process is fine.
 
 ## The symptoms
 
-And look, on paper it usually *is* fine. Standups happen at 9:30 sharp. The backlog is refined. Estimates are estimated. Retros produce action items, and some of them even get done. The board has columns and the columns have tickets and the tickets have acceptance criteria.
+And look, on paper it usually *is* fine. Standups happen at 9:00 sharp. The backlog is refined. Stories are three amigo'd, retros produce action items, and some of them even get done.
 
 And yet: deadlines slip. Work crawls. Everything is "in progress" and nothing is finished. QA gets flattened every sprint like a seaside town in a disaster film, always on the last two days. And the sprint goal, that sentence someone carefully typed on planning day, gets read aloud once and is never spoken of again, like a wish.
 
-Here's the uncomfortable bit. If the process were the problem, changing the process would have fixed it by now. And you've changed it. You've tried shorter standups, longer refinement, new estimation scales, a different board layout. The doors still don't line up.
+Here's the uncomfortable bit. If the process were the problem, changing the process would have fixed it by now. And you've changed it. You've tried shorter standups, longer refinement, different ways of estimating, a new way of working. The doors still don't line up.
 
 Stop re-reading the manual. Check the floor.
 
-## Follow the parcel
+## What is the goal, actually?
 
-I once tracked a parcel that was "in transit" for nine days. Nine days! It travelled forty miles. I have walked further for a decent bacon roll. Of course, the parcel wasn't really in transit. It was sitting in a cage in a depot, perfectly stationary, while the tracking page radiated optimism.
+Read your sprint goal. Now look at your board. Could someone who has never met your team look at the two side by side and tell you what you're trying to make true?
 
-Your tickets are that parcel. A ticket that was "in progress" for two weeks was probably actively worked on for a few hours. The rest of its life was spent waiting: waiting for a code review, waiting for an answer from the product owner, waiting for an environment, waiting for QA to surface from the pile you buried them under last Thursday. The board says movement. The work is in a cage.
+If the goal says "launch the new checkout" and the board is ten tickets with nothing to do with each other, the goal was never a goal. It was a caption on a photo of some work. And that's worth sitting with, because a goal is really a bet. You're wagering that this thing, finished, changes something you care about. So if the board can't tell you whether you're winning that bet, what is it actually for?
 
-So here's the dig. No new framework required, just an honest afternoon:
+I won't tell you how to write a better one, you know your product and I don't. But at your next planning, try reading the goal out loud and then asking the room what would have to be on the board for us to know we hit it. Notice how long the silence is.
 
-- **Autopsy five tickets.** Take the last five things you finished and draw each one's timeline, hour by hour. Colour in "someone was actually working on this" versus "this was waiting for something". The ratio will upset you. Good. It's supposed to.
-- **Count what's open.** Tally how many items each person has in flight. I own one hob with four rings and I have still burnt dinner by attempting six things on it. If everyone is cooking three tickets, nobody is finishing any of them, and every hand-off is a chance to wait.
-- **Ask when QA receives work, not how much.** If the answer is "Thursday, all of it", your QA isn't under-resourced. You've got a kitchen where the whole restaurant orders dessert at the same moment. The pile at the end of the sprint isn't a testing problem, it's a batching problem, and it was created on Monday.
-- **Read the sprint goal, then read the board.** If the goal says "launch the new checkout" and the board is ten unrelated tickets, then it was never a goal. It was a caption. Ten people rowing ten little boats will all row very hard and arrive at ten different places.
+## What would you measure?
 
-## What this buys you
+This is the one I actually want to leave you with.
 
-Once you've looked, the fixes mostly suggest themselves, and none of them are ceremonies. Make the waiting visible: if work queues in front of review or QA, give that queue a column so it stops hiding inside "in progress". Put a limit on how much the team has open at once, and when someone's free, have them finish something rather than start something. Slice work small enough that the first piece reaches QA on Tuesday, not Thursday. And pick sprint goals modest enough that most of the team is actually rowing the same boat.
+Most teams measure bugs. Bugs are easy. You can count them, graph them, feel productive about the graph. But ask yourself, honestly, what the bug count has ever told you about why the work is late. It was never down in the dark where the problem lives. It was over where the counting is easy.
 
-Then take the ticket timelines to your next retro instead of feelings. "Waiting for review was 60% of our cycle time" is a much better conversation starter than "communication could be better".
+And here's the trap: the moment you make a number a target, it stops telling you the truth. Count closed bugs and you'll get bugs closed and quietly reopened. Count velocity and you'll get estimates that puff up to hit it. So I'm not going to hand you a metric, because a metric I hand you is just a target you'll learn to game.
 
-The point is this: process is the assembly manual, and flow is the floor it's standing on. When the doors don't line up and the manual checks out, the manual is the wrong place to keep looking. A spirit level costs about five quid. Go and hold it against your board.
+I'll ask instead. What are you afraid to measure? What's the number you suspect you wouldn't like, the one nobody quite volunteers in the retro? Start there. That is almost always the floor your wardrobe has been standing on the whole time.
+
+## So, this week
+
+Don't change your process. Don't book a workshop. Just go and answer two questions honestly.
+
+What would have to be true for your goal to count. And what are you not measuring, because you're a little afraid of the answer.
+
+The doors will show you where they don't line up. You just have to stop assuming it's the instructions.
