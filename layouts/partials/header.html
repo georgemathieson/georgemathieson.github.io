@@ -1,5 +1,8 @@
 <header class="site-header">
-    <a class="site-header__name" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+    <a class="site-header__name" href="{{ "/" | relURL }}"{{ if .IsHome }} data-crt{{ end }}>
+        <span class="site-header__name-text">{{ site.Title }}</span>
+        {{- if .IsHome }}<span class="site-header__name-beam" aria-hidden="true"></span>{{ end }}
+    </a>
     <nav class="site-header__nav" aria-label="Main navigation">
         <a class="site-header__link" href="{{ "/posts/" | relURL }}"{{ if eq .RelPermalink "/posts/" }} aria-current="page"{{ end }}>Posts</a>
         <a class="site-header__link" href="{{ "/about/" | relURL }}"{{ if eq .RelPermalink "/about/" }} aria-current="page"{{ end }}>About</a>

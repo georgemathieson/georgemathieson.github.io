@@ -8,12 +8,43 @@
     border-bottom: 1px solid var(--colour-border-strong);
 
     &__name {
+        position: relative;
         color: var(--colour-text);
         font-weight: 700;
         text-decoration: none;
 
         &:hover {
             color: var(--colour-accent);
+        }
+    }
+
+    // The wordmark is revealed by scaling, never by fading, so the text
+    // stays at full contrast even mid-animation.
+    &__name-text {
+        display: inline-block;
+        transform-origin: center;
+    }
+
+    // The scanline that strikes across as the tube powers on. Purely
+    // decorative and invisible until the homepage script drives it, so
+    // the header is unchanged with JavaScript off.
+    &__name-beam {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 0;
+        height: 2px;
+        background: var(--colour-accent);
+        box-shadow: 0 0 8px var(--colour-accent);
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: left center;
+        pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__name-beam {
+            display: none;
         }
     }
 

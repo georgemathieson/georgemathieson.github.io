@@ -28,9 +28,16 @@ pushes to `main`. See README.md for build and authoring mechanics.
   never a primitive, never a raw hex.
 - Both themes must hold WCAG 2.2 AA contrast. When touching a primitive,
   recalculate the ratios documented in `_colours.scss`.
-- Dark mode follows `prefers-color-scheme`. There is no toggle and the
-  site ships zero JavaScript; keep it that way unless George says
-  otherwise.
+- Dark mode follows `prefers-color-scheme` and there is no toggle.
+- The homepage wordmark animation is the only JavaScript on the site
+  (GSAP, vendored in `assets/js/vendor/` and served from this domain so
+  no page makes a third-party request, loaded on the homepage alone).
+  Every other page still ships zero JavaScript; keep it that way unless
+  George says otherwise. Any animation must skip entirely under
+  `prefers-reduced-motion`, must never animate the colour or opacity of
+  text (contrast has to hold mid-animation, and CI checks it), must
+  never leave content hidden if it stalls, and should play once per
+  session rather than on every visit.
 - SCSS uses BEM class naming, one partial per block. Hugo compiles it
   with libsass, so use `@import` (not `@use`) and wrap CSS functions
   with mixed units in `unquote(...)`.
