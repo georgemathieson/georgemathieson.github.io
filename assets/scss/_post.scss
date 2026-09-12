@@ -44,10 +44,11 @@
     }
 
     &__content {
-        // Images break out of the text measure, up to 64rem, and render
-        // greyscale so photos stay on the site's monochrome palette. The
-        // brightness token dims them a touch in dark mode so a white-heavy
-        // photo doesn't glare against the dark surface.
+        // Images break out of the text measure, up to 64rem. They keep
+        // their own colour: the interface stays monochrome so that the
+        // pictures are the only colour in the room. The brightness token
+        // dims them a touch in dark mode so a bright photo doesn't glare
+        // against the dark surface.
         img {
             display: block;
             position: relative;
@@ -56,7 +57,7 @@
             width: auto;
             height: auto;
             max-width: unquote("min(64rem, calc(100vw - 2rem))");
-            filter: grayscale(1) brightness(var(--image-brightness, 1));
+            filter: brightness(var(--image-brightness, 1));
             margin: $space-32 0;
         }
 

@@ -35,9 +35,9 @@ Then reference them with plain Markdown; a title becomes the caption:
 ![Alt text describing the image](photo.jpg "An optional caption.")
 ```
 
-Every image breaks out wider than the text column (up to 64rem), renders greyscale to match the palette, and — for raster images in the bundle — is automatically resized into a responsive `srcset` with lazy loading and explicit dimensions. Captioned images render as `<figure>`/`<figcaption>`. Always write meaningful alt text.
+Every image breaks out wider than the text column (up to 64rem), keeps its own colour against the monochrome interface, and — for raster images in the bundle — is automatically resized into a responsive `srcset` with lazy loading and explicit dimensions. Captioned images render as `<figure>`/`<figcaption>`. Always write meaningful alt text.
 
-Because images render greyscale, never rely on colour to carry meaning in charts or screenshots (use labels, patterns, or annotations) — which is also the accessible thing to do regardless. The site targets WCAG AA: keep alt text meaningful, heading levels sequential, and link text descriptive.
+Images are dimmed slightly in dark mode so a bright photo does not glare. Never rely on colour alone to carry meaning in charts or screenshots (use labels, patterns, or annotations), which is the accessible thing to do regardless. The site targets WCAG AA: keep alt text meaningful, heading levels sequential, and link text descriptive.
 
 ## Structure
 
