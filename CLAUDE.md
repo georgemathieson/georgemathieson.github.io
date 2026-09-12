@@ -19,7 +19,9 @@ pushes to `main`. See README.md for build and authoring mechanics.
 
 ## Design rules
 
-- Black and white with one teal accent. No other colours, ever.
+- Black and white with one teal accent. No other colours in the
+  interface, ever. Content imagery is the one exception: photographs
+  and screenshots keep their own colour (see the images rule below).
 - Colours live in `assets/scss/_colours.scss` only: primitives feed
   per-theme semantic token maps, emitted as `--colour-*` custom
   properties. Components reference `var(--colour-*)` exclusively —
@@ -38,9 +40,13 @@ pushes to `main`. See README.md for build and authoring mechanics.
   (`$space-4` … `$space-64` in `_variables.scss`) — no off-scale
   values. Prefer `gap` for spacing flex/grid siblings; prose flow
   (paragraphs, headings, lists) keeps margins so collapsing works.
-- Images: greyscale, breaking out to 64rem, captions via markdown title
-  syntax, page bundles with responsive resizes. Meaningful alt text
-  always; never let colour carry meaning in an image.
+- Images keep their own colour and break out to 64rem; captions via
+  markdown title syntax, page bundles with responsive resizes. The
+  monochrome interface is the frame, so the pictures are the only
+  colour in the room. They are dimmed slightly in dark mode
+  (`--image-brightness`) so a bright photo does not glare. Meaningful
+  alt text always; never let colour carry meaning in an image, which
+  is a colour-blindness rule and still applies.
 - The favicon is the flask (`static/favicon.svg`): outline in the ink
   primitives (#111111, #e6e6e6 in dark via its embedded media query),
   liquid in the teal accent (#008080). When it changes, regenerate the
@@ -64,11 +70,11 @@ pushes to `main`. See README.md for build and authoring mechanics.
 - No em dashes or en dashes in post content — George finds them
   distracting. Use commas, colons, parentheses, or full stops.
 - No emoji in post content, headings, or front matter. They break the
-  monochrome palette that the whole design is built on (we greyscale
-  photographs for the same reason), they glare against the dark theme,
-  and the deadpan voice reads better undecorated. Emoji are fine
-  outside the site itself: commit messages, PR descriptions, the
-  README, and anywhere George is writing as himself.
+  monochrome interface the design is built on (photographs are the one
+  exception, and they are content, not chrome), they glare against the
+  dark theme, and the deadpan voice reads better undecorated. Emoji
+  are fine outside the site itself: commit messages, PR descriptions,
+  the README, and anywhere George is writing as himself.
 - Voice: first person, conversational, quirky. Posts open with a
   concrete, slightly absurd personal anecdote that snaps into the
   point (the Monzo money-book style). Content themes lean on delivery,
