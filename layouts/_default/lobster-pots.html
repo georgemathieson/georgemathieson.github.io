@@ -1,0 +1,124 @@
+{{ define "main" }}
+<article class="post">
+    <header class="post__header">
+        <h1 class="post__title">{{ .Title }}</h1>
+    </header>
+
+    {{ with .Params.lead }}<p class="lobster-pots__lead">{{ . }}</p>{{ end }}
+
+    <div class="lobster-pots" data-lobster-pots>
+        <h2 class="visually-hidden">Play</h2>
+
+        <p class="lobster-pots__nojs">
+            This one needs JavaScript, which is switched off. The rules are
+            written out below, and the game plays perfectly well with two
+            dice and a sheet of paper, which is how it was meant to be played.
+        </p>
+
+        <div class="lobster-pots__game">
+            <div class="lobster-pots__status">
+                <p class="lobster-pots__stat">
+                    <span class="lobster-pots__stat-label">Day</span>
+                    <strong class="lobster-pots__stat-value" data-lp-day>Monday</strong>
+                </p>
+                <p class="lobster-pots__stat">
+                    <span class="lobster-pots__stat-label">Balance</span>
+                    <strong class="lobster-pots__stat-value" data-lp-balance data-negative="false">$50</strong>
+                </p>
+            </div>
+
+            <canvas class="lobster-pots__canvas" data-lp-canvas aria-hidden="true"></canvas>
+
+            <p class="lobster-pots__announce visually-hidden" role="status" data-lp-announce></p>
+
+            {{/* Placing the pots. */}}
+            <section class="lobster-pots__phase" data-lp-place>
+                <h3 class="lobster-pots__phase-title">Forecast</h3>
+
+                <div class="lobster-pots__forecast">
+                    {{ partial "die.html" (dict "key" "forecast" "label" "Forecast die") }}
+                    <p class="lobster-pots__forecast-text" data-lp-forecast-text>Good weather predicted.</p>
+                </div>
+
+                <fieldset class="lobster-pots__split">
+                    <legend class="lobster-pots__legend">How many of your six pots go offshore?</legend>
+                    <div class="lobster-pots__segments">
+                        {{ range $i := seq 0 6 }}
+                        <input class="lobster-pots__segment-input visually-hidden" type="radio"
+                               name="lp-offshore" id="lp-offshore-{{ $i }}" value="{{ $i }}"
+                               data-lp-offshore{{ if eq $i 3 }} checked{{ end }}>
+                        <label class="lobster-pots__segment" for="lp-offshore-{{ $i }}">{{ $i }}</label>
+                        {{ end }}
+                    </div>
+                    <p class="lobster-pots__split-text" data-lp-split>3 inshore, 3 offshore</p>
+                </fieldset>
+
+                <div class="lobster-pots__lottery" data-lp-lottery hidden>
+                    <label class="lobster-pots__lottery-label" for="lp-lottery">
+                        It is Tuesday, so it is lottery day. Pick the sum of two dice for a
+                        chance at $100.
+                    </label>
+                    <select class="lobster-pots__select" id="lp-lottery" data-lp-lottery-pick>
+                        {{ range $n := seq 2 12 }}
+                        <option value="{{ $n }}"{{ if eq $n 7 }} selected{{ end }}>{{ $n }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+
+                <button class="lobster-pots__button" type="button" data-lp-cast>Set the pots for Monday</button>
+            </section>
+
+            {{/* The day's outcome. */}}
+            <section class="lobster-pots__phase" data-lp-result hidden>
+                <h3 class="lobster-pots__phase-title" data-lp-result-heading>Calm water</h3>
+
+                <div class="lobster-pots__forecast">
+                    {{ partial "die.html" (dict "key" "actual" "label" "Weather die") }}
+                    <p class="lobster-pots__forecast-text">The sea rolls a current when this
+                        comes in under the forecast.</p>
+                </div>
+
+                <ul class="lobster-pots__lines" data-lp-result-lines></ul>
+
+                <button class="lobster-pots__button" type="button" data-lp-next>On to Tuesday</button>
+            </section>
+
+            {{/* End of the week. */}}
+            <section class="lobster-pots__phase" data-lp-done hidden>
+                <h3 class="lobster-pots__phase-title">Sunday night</h3>
+                <p class="lobster-pots__final" data-lp-final>$50</p>
+                <p data-lp-verdict></p>
+                <p class="lobster-pots__best" data-lp-best></p>
+                <button class="lobster-pots__button" type="button" data-lp-restart>Play another week</button>
+            </section>
+
+            <h3 class="lobster-pots__phase-title">The ledger</h3>
+            <div class="lobster-pots__table-wrap" role="region"
+                 aria-label="The ledger, scrollable sideways" tabindex="0">
+                <table class="lobster-pots__ledger">
+                    <caption class="visually-hidden">Your week so far: pots placed inshore and offshore each day, whether a current ran, and the money earned, lost and left.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Day</th>
+                            <th scope="col">Inshore</th>
+                            <th scope="col">Offshore</th>
+                            <th scope="col">Current</th>
+                            <th scope="col">Earned</th>
+                            <th scope="col">Lost</th>
+                            <th scope="col">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody data-lp-ledger-body></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="post__content">
+        {{ .Content }}
+    </div>
+</article>
+
+{{ $script := resources.Get "js/lobster-pots.js" | resources.Minify | fingerprint }}
+<script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
+{{ end }}

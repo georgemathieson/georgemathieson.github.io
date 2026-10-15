@@ -1,0 +1,40 @@
+// A six sided die. Nine grid cells, of which CSS reveals the pips that
+// belong to the face in data-face; the value is also on the container as
+// an accessible name, so the pips are purely decorative.
+
+$die-faces: (
+    1: (5),
+    2: (1, 9),
+    3: (1, 5, 9),
+    4: (1, 3, 7, 9),
+    5: (1, 3, 5, 7, 9),
+    6: (1, 3, 4, 6, 7, 9)
+);
+
+.die {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $space-4;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: $space-4;
+    border: 2px solid var(--colour-border-strong);
+    background: var(--colour-surface-raised);
+
+    &__pip {
+        visibility: hidden;
+        border-radius: 50%;
+        background: var(--colour-text);
+    }
+}
+
+@each $face, $pips in $die-faces {
+    .die[data-face="#{$face}"] {
+        @each $pip in $pips {
+            .die__pip:nth-child(#{$pip}) {
+                visibility: visible;
+            }
+        }
+    }
+}

@@ -84,6 +84,24 @@
             font-size: 1.2rem;
         }
 
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: $space-32 0;
+            font-size: 0.9375rem;
+
+            th,
+            td {
+                padding: $space-8;
+                text-align: left;
+                border-bottom: 1px solid var(--colour-border);
+            }
+
+            thead th {
+                border-bottom: 2px solid var(--colour-border-strong);
+            }
+        }
+
         ul,
         ol {
             margin: 0 0 $space-16;

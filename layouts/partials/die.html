@@ -1,0 +1,7 @@
+{{- /* A six sided die drawn as nine grid cells; CSS shows the pips that
+       belong to the current face. The container carries the value as
+       text for assistive technology, so the pips are decoration. */ -}}
+<span class="die" data-lp-die="{{ .key }}" data-die-label="{{ .label }}" data-face="1"
+      role="img" aria-label="{{ .label }}: 1">
+    {{- range seq 9 }}<span class="die__pip" aria-hidden="true"></span>{{ end -}}
+</span>

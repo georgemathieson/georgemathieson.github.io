@@ -28,9 +28,20 @@ pushes to `main`. See README.md for build and authoring mechanics.
   never a primitive, never a raw hex.
 - Both themes must hold WCAG 2.2 AA contrast. When touching a primitive,
   recalculate the ratios documented in `_colours.scss`.
-- Dark mode follows `prefers-color-scheme`. There is no toggle and the
-  site ships zero JavaScript; keep it that way unless George says
-  otherwise.
+- Dark mode follows `prefers-color-scheme`. There is no toggle, and no
+  page ships JavaScript except the one listed below; keep it that way
+  unless George says otherwise.
+- The one JavaScript page is `/lobster-pots/`, a canvas game. The
+  exception is scoped to it: the layout `layouts/_default/lobster-pots.html`
+  is the only one that loads a script, and nothing it needs may leak into
+  a shared partial. Inside it the canvas is decoration only, every value
+  it draws is written into the markup as well, and game state never waits
+  on an animation frame (a backgrounded tab stops firing them). If a
+  second page ever wants JavaScript, that is a conversation, not a copy
+  and paste.
+- `[hidden]` is settled in `_base.scss` with `display: none !important`,
+  because a class that sets `display` otherwise outranks it and leaves
+  "hidden" panels on screen. Toggle visibility with the attribute.
 - SCSS uses BEM class naming, one partial per block. Hugo compiles it
   with libsass, so use `@import` (not `@use`) and wrap CSS functions
   with mixed units in `unquote(...)`.
@@ -64,12 +75,15 @@ pushes to `main`. See README.md for build and authoring mechanics.
 
 ## Accessibility
 
-- The target is WCAG 2.2 AA and it is CI-enforced: axe scans five pages
+- The target is WCAG 2.2 AA and it is CI-enforced: axe scans six pages
   in both colour schemes on every PR (`.github/workflows/accessibility.yml`).
 - Preserve the structural furniture: one `h1` per page (visually hidden
   on the homepage), sequential heading levels, skip link, landmarks,
   `aria-current` on active nav, `time[datetime]`, visible focus styles,
   touch targets ≥ 24px.
+- Anything that scrolls sideways (the game ledger, any wide table) needs
+  `tabindex="0"` plus a name, or axe fails it as a scrollable region a
+  keyboard cannot reach.
 
 ## Writing for the blog
 
