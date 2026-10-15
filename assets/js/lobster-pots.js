@@ -59,7 +59,7 @@
     }
 
     function money(n) {
-        return (n < 0 ? '-$' : '$') + Math.abs(n);
+        return (n < 0 ? '-\u00a3' : '\u00a3') + Math.abs(n);
     }
 
     function dayName() {
@@ -325,7 +325,7 @@
             return 'You have lost a lot of pots. The sea does not care about your forecast.';
         }
         if (profit < 0) {
-            return 'Down on the week. The offshore pots are a tempting way to lose ten dollars at a time.';
+            return 'Down on the week. The offshore pots are a tempting way to lose ten pounds at a time.';
         }
         if (profit === 0) {
             return 'Exactly even. Statistically impressive, commercially pointless.';
@@ -373,14 +373,38 @@
         var raf = null;
         var time = 0;
         var lastFrame = 0;
-        var amplitude = 4;
-        var targetAmplitude = 4;
+        var lastDraw = 0;
         var visible = true;
 
-        var HORIZON = 0.32;
-        // Where the light comes from, in the mesh's own space. Facets are
-        // flat shaded against this, which is what gives the low poly look.
-        var LIGHT = [-0.42, 0.80, -0.43];
+        var amp = 1;
+        var targetAmp = 1;
+        var cheer = 0;
+        var targetCheer = 0;
+
+        // The camera looks out over the water from just behind the boat.
+        // Pitch here is the world's rotation about X: a negative value
+        // lifts the horizon up the frame, which is the view we want.
+        var CAM = { x: 0, y: 2.35, z: -4.7, pitch: -0.27 };
+        var focal = 1;
+        var horizonY = 0;
+
+        var LIGHT = unit(-0.46, 0.76, -0.46);
+        var AMBIENT = 0.5;
+        var FOG_NEAR = 22;
+        var FOG_FAR = 150;
+
+        var BOAT = { x: -1.0, z: 0.5, yaw: -0.5, scale: 1.3 };
+
+        // Where the pots go, in world coordinates. Inshore sits in the
+        // shallows by the rock; offshore is out towards the horizon.
+        var INSHORE = [
+            [-3.6, 4.2], [-2.3, 6.4], [-4.7, 7.6],
+            [-1.6, 5.0], [-3.2, 9.4], [-1.2, 8.0]
+        ];
+        var OFFSHORE = [
+            [2.6, 10.5], [4.6, 13.5], [1.2, 15.0],
+            [5.8, 10.0], [3.2, 17.5], [6.8, 15.0]
+        ];
 
         var reduceMotion = window.matchMedia
             ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -389,44 +413,317 @@
             ? window.matchMedia('(prefers-color-scheme: dark)')
             : { matches: false };
 
-        var PALETTES = {
+        var THEMES = {
             light: {
-                sky: ['#fbfbfb', '#f2f2f2', '#e8e8e8'],
-                sea: ['#c3ece6', '#a2ded6', '#7fd4cb', '#5cc3b8', '#4db6ac',
-                    '#26a69a', '#0f8f84', '#008080', '#00706f', '#005f5f'],
-                land: ['#8a8a8a', '#6b6b6b', '#4f4f4f', '#3a3a3a'],
-                pot: '#111111',
-                potShade: '#4a4a4a',
-                pennant: '#ffffff',
-                foam: '#ffffff'
+                skyTop: [242, 245, 245],
+                skyLow: [214, 231, 229],
+                sea: [36, 150, 142],
+                rock: [168, 168, 162],
+                hull: [168, 182, 190],
+                floor: [150, 122, 88],
+                eye: [58, 44, 40],
+                jumper: [240, 238, 230],
+                skin: [232, 190, 158],
+                hat: [223, 120, 70],
+                buoyTop: [223, 120, 70],
+                buoyLow: [240, 238, 230],
+                foam: [255, 255, 255]
             },
             dark: {
-                sky: ['#232323', '#1b1b1b', '#131313'],
-                sea: ['#4ec4b6', '#3fb3a6', '#34a195', '#2b8f84', '#237d74',
-                    '#1c6b63', '#155953', '#0f4743', '#0a3634', '#072725'],
-                land: ['#3a3a3a', '#2c2c2c', '#202020', '#161616'],
-                pot: '#ececec',
-                potShade: '#8e8e8e',
-                pennant: '#ececec',
-                foam: '#cfcfcf'
+                skyTop: [22, 24, 25],
+                skyLow: [18, 46, 45],
+                sea: [22, 104, 98],
+                rock: [92, 94, 92],
+                hull: [112, 128, 136],
+                floor: [110, 90, 66],
+                eye: [42, 32, 30],
+                jumper: [206, 203, 194],
+                skin: [192, 154, 128],
+                hat: [192, 100, 58],
+                buoyTop: [192, 100, 58],
+                buoyLow: [206, 203, 194],
+                foam: [216, 222, 222]
             }
         };
 
-        // Fixed slots, as fractions of the sea area. The second number is
-        // nearness: 1 is right under your nose, 0 is on the horizon. The
-        // inshore ones sit clear of the headland on the left.
-        var INSHORE_SLOTS = [
-            [0.30, 0.86], [0.46, 0.70], [0.24, 0.62],
-            [0.42, 0.97], [0.56, 0.79], [0.35, 0.50]
-        ];
-        var OFFSHORE_SLOTS = [
-            [0.64, 0.26], [0.79, 0.34], [0.89, 0.19],
-            [0.71, 0.43], [0.57, 0.14], [0.93, 0.45]
+        function theme() {
+            return darkScheme.matches ? THEMES.dark : THEMES.light;
+        }
+
+        // --- Small vector helpers ---
+
+        function unit(x, y, z) {
+            var len = Math.sqrt(x * x + y * y + z * z) || 1;
+            return { x: x / len, y: y / len, z: z / len };
+        }
+
+        function project(p) {
+            var dx = p.x - CAM.x;
+            var dy = p.y - CAM.y;
+            var dz = p.z - CAM.z;
+            var c = Math.cos(CAM.pitch);
+            var s = Math.sin(CAM.pitch);
+            var y1 = dy * c - dz * s;
+            var z1 = dy * s + dz * c;
+            if (z1 < 0.3) {
+                return null;
+            }
+            var f = focal / z1;
+            return { x: view.w * 0.5 + dx * f, y: view.h * 0.5 - y1 * f, z: z1 };
+        }
+
+        // Yaw, then roll, then pitch, then move. Good enough for a boat
+        // that only ever leans a few degrees.
+        function xform(p, t) {
+            var x = p.x;
+            var y = p.y;
+            var z = p.z;
+            var c;
+            var s;
+            var n;
+            if (t.s) {
+                x *= t.s;
+                y *= t.s;
+                z *= t.s;
+            }
+            if (t.ry) {
+                c = Math.cos(t.ry);
+                s = Math.sin(t.ry);
+                n = x * c + z * s;
+                z = -x * s + z * c;
+                x = n;
+            }
+            if (t.rz) {
+                c = Math.cos(t.rz);
+                s = Math.sin(t.rz);
+                n = x * c - y * s;
+                y = x * s + y * c;
+                x = n;
+            }
+            if (t.rx) {
+                c = Math.cos(t.rx);
+                s = Math.sin(t.rx);
+                n = y * c - z * s;
+                z = y * s + z * c;
+                y = n;
+            }
+            return { x: x + (t.x || 0), y: y + (t.y || 0), z: z + (t.z || 0) };
+        }
+
+        // --- Geometry ---
+
+        function quad(out, a, b, c, d, colour) {
+            out.push({ v: [a, b, c], c: colour });
+            out.push({ v: [a, c, d], c: colour });
+        }
+
+        function boxFaces(sx, sy, sz, colour, offset) {
+            var ox = offset ? offset.x || 0 : 0;
+            var oy = offset ? offset.y || 0 : 0;
+            var oz = offset ? offset.z || 0 : 0;
+            var hx = sx / 2;
+            var hy = sy / 2;
+            var hz = sz / 2;
+            var v = function (ix, iy, iz) {
+                return { x: ox + ix * hx, y: oy + iy * hy, z: oz + iz * hz };
+            };
+            var a = v(-1, -1, -1);
+            var b = v(1, -1, -1);
+            var c = v(1, 1, -1);
+            var d = v(-1, 1, -1);
+            var e = v(-1, -1, 1);
+            var f = v(1, -1, 1);
+            var g = v(1, 1, 1);
+            var h = v(-1, 1, 1);
+            var faces = [];
+            quad(faces, e, f, g, h, colour);
+            quad(faces, b, a, d, c, colour);
+            quad(faces, a, e, h, d, colour);
+            quad(faces, f, b, c, g, colour);
+            quad(faces, h, g, c, d, colour);
+            quad(faces, a, b, f, e, colour);
+            return faces;
+        }
+
+        function coneFaces(radius, height, segments, colour) {
+            var faces = [];
+            var apex = { x: 0, y: height, z: 0 };
+            var centre = { x: 0, y: 0, z: 0 };
+            for (var i = 0; i < segments; i++) {
+                var a0 = (i / segments) * Math.PI * 2;
+                var a1 = ((i + 1) / segments) * Math.PI * 2;
+                var p0 = { x: Math.cos(a0) * radius, y: 0, z: Math.sin(a0) * radius };
+                var p1 = { x: Math.cos(a1) * radius, y: 0, z: Math.sin(a1) * radius };
+                faces.push({ v: [p1, p0, apex], c: colour });
+                faces.push({ v: [p0, p1, centre], c: colour });
+            }
+            return faces;
+        }
+
+        function drumFaces(radius, height, segments, colour) {
+            var faces = [];
+            var top = [];
+            var bot = [];
+            var i;
+            for (i = 0; i < segments; i++) {
+                var a = (i / segments) * Math.PI * 2;
+                var cx = Math.cos(a) * radius;
+                var cz = Math.sin(a) * radius;
+                top.push({ x: cx, y: height / 2, z: cz });
+                bot.push({ x: cx, y: -height / 2, z: cz });
+            }
+            var topC = { x: 0, y: height / 2, z: 0 };
+            var botC = { x: 0, y: -height / 2, z: 0 };
+            for (i = 0; i < segments; i++) {
+                var k = (i + 1) % segments;
+                quad(faces, bot[i], bot[k], top[k], top[i], colour);
+                faces.push({ v: [topC, top[k], top[i]], c: colour });
+                faces.push({ v: [botC, bot[i], bot[k]], c: colour });
+            }
+            return faces;
+        }
+
+        var HULL = [
+            [0, 1.4], [0.46, 0.66], [0.5, -0.48],
+            [0, -1.0], [-0.5, -0.48], [-0.46, 0.66]
         ];
 
-        function palette() {
-            return darkScheme.matches ? PALETTES.dark : PALETTES.light;
+        function hullFaces(side, floor) {
+            var faces = [];
+            var n = HULL.length;
+            var top = [];
+            var bot = [];
+            for (var i = 0; i < n; i++) {
+                top.push({ x: HULL[i][0], y: 0.32, z: HULL[i][1] });
+                bot.push({ x: HULL[i][0] * 0.58, y: -0.26, z: HULL[i][1] * 0.58 });
+            }
+            var centre = { x: 0, y: -0.26, z: 0 };
+            for (var j = 0; j < n; j++) {
+                var k = (j + 1) % n;
+                quad(faces, bot[j], bot[k], top[k], top[j], side);
+                faces.push({ v: [centre, bot[j], bot[k]], c: floor });
+            }
+            return faces;
         }
+
+        function buoyFaces(top, low) {
+            var faces = [];
+            var segments = 6;
+            var r = 0.19;
+            var apex = { x: 0, y: 0.3, z: 0 };
+            var keel = { x: 0, y: -0.22, z: 0 };
+            for (var i = 0; i < segments; i++) {
+                var a0 = (i / segments) * Math.PI * 2;
+                var a1 = ((i + 1) / segments) * Math.PI * 2;
+                var p0 = { x: Math.cos(a0) * r, y: 0.03, z: Math.sin(a0) * r };
+                var p1 = { x: Math.cos(a1) * r, y: 0.03, z: Math.sin(a1) * r };
+                faces.push({ v: [p1, p0, apex], c: top });
+                faces.push({ v: [p0, p1, keel], c: low });
+            }
+            return faces;
+        }
+
+        function rockFaces(colour) {
+            var faces = [];
+            var segments = 7;
+            var radii = [1.9, 1.5, 2.2, 1.7, 2.0, 1.4, 1.8];
+            var heights = [0.9, 1.5, 0.7, 1.2, 0.8, 1.6, 1.0];
+            var apex = { x: 0.25, y: 2.4, z: 0.1 };
+            var ring = [];
+            var base = [];
+            for (var i = 0; i < segments; i++) {
+                var a = (i / segments) * Math.PI * 2;
+                ring.push({
+                    x: Math.cos(a) * radii[i],
+                    y: heights[i],
+                    z: Math.sin(a) * radii[i]
+                });
+                base.push({
+                    x: Math.cos(a) * radii[i] * 1.3,
+                    y: -0.4,
+                    z: Math.sin(a) * radii[i] * 1.3
+                });
+            }
+            for (var j = 0; j < segments; j++) {
+                var k = (j + 1) % segments;
+                faces.push({ v: [ring[k], ring[j], apex], c: colour });
+                quad(faces, base[j], base[k], ring[k], ring[j], colour);
+            }
+            return faces;
+        }
+
+        function discFaces(radius, colour) {
+            var faces = [];
+            var segments = 6;
+            var centre = { x: 0, y: 0, z: 0 };
+            for (var i = 0; i < segments; i++) {
+                var a0 = (i / segments) * Math.PI * 2;
+                var a1 = ((i + 1) / segments) * Math.PI * 2;
+                faces.push({
+                    v: [
+                        { x: Math.cos(a1) * radius, y: 0, z: Math.sin(a1) * radius },
+                        { x: Math.cos(a0) * radius, y: 0, z: Math.sin(a0) * radius },
+                        centre
+                    ],
+                    c: colour
+                });
+            }
+            return faces;
+        }
+
+        // --- The cast, built once ---
+
+        var hull = null;
+        var figure = null;
+        var buoy = null;
+        var rock = null;
+        var foam = null;
+        var builtFor = null;
+
+        function build() {
+            var t = theme();
+            hull = hullFaces(t.hull, t.floor);
+            figure = [
+                { f: boxFaces(0.36, 0.32, 0.28, t.jumper), t: { y: 0.33 } },
+                { f: drumFaces(0.28, 0.32, 10, t.skin), t: { y: 0.72, ry: Math.PI / 10 } },
+                { f: drumFaces(0.29, 0.13, 10, t.hat), t: { y: 0.87, ry: Math.PI / 10 } },
+                { f: coneFaces(0.29, 0.11, 10, t.hat), t: { y: 0.925 } },
+                { f: boxFaces(0.07, 0.075, 0.05, t.eye), t: { x: -0.1, y: 0.74, z: 0.27 } },
+                { f: boxFaces(0.07, 0.075, 0.05, t.eye), t: { x: 0.1, y: 0.74, z: 0.27 } },
+                { f: boxFaces(0.085, 0.2, 0.085, t.jumper, { y: -0.1 }),
+                    t: { x: -0.175, y: 0.42 }, arm: -1 },
+                { f: boxFaces(0.085, 0.2, 0.085, t.jumper, { y: -0.1 }),
+                    t: { x: 0.175, y: 0.42 }, arm: 1 }
+            ];
+            buoy = buoyFaces(t.buoyTop, t.buoyLow);
+            rock = rockFaces(t.rock);
+            foam = discFaces(0.42, t.foam);
+            builtFor = darkScheme.matches ? 'dark' : 'light';
+        }
+
+        // --- Water ---
+
+        function waveHeight(x, z, t, d) {
+            // Damped with distance, or the far rows alias into a mess.
+            var damp = 1 / (1 + d * 0.06);
+            return (Math.sin(x * 0.55 + t * 1.15) * 0.14
+                + Math.sin(z * 0.43 - t * 0.95) * 0.18
+                + Math.sin((x * 0.6 + z * 0.5) * 0.62 + t * 1.7) * 0.11) * amp * damp;
+        }
+
+        // Deterministic per-vertex phase. Without it the mesh moves as one
+        // smooth sheet and the low poly facets never show.
+        function vertexChop(c, r, t, d) {
+            var n = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
+            var phase = (n - Math.floor(n)) * Math.PI * 2;
+            return Math.sin(t * 1.6 + phase) * 0.15 * Math.sqrt(amp) / (1 + d * 0.06);
+        }
+
+        function surfaceAt(x, z) {
+            return waveHeight(x, z, time, z - CAM.z);
+        }
+
+        // --- Rendering ---
 
         function resize() {
             if (!ctx) {
@@ -440,97 +737,27 @@
             canvas.width = Math.round(rect.width * dpr);
             canvas.height = Math.round(rect.height * dpr);
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
             view.w = rect.width;
             view.h = rect.height;
+            focal = view.h * 0.92;
+            horizonY = view.h * 0.5 + focal * Math.tan(CAM.pitch);
             draw();
         }
 
-        // Deterministic per-vertex noise. Without it the mesh shades into
-        // smooth horizontal bands instead of reading as separate facets.
-        function noise(c, r) {
-            var n = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
-            return n - Math.floor(n);
+        function rgb(c) {
+            return 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')';
         }
 
-        function waveAt(x, t, amp) {
-            return Math.sin(x * 0.016 + t) * amp
-                + Math.sin(x * 0.041 - t * 1.37) * amp * 0.45;
-        }
-
-        function triangle(a, b, c, fill) {
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.lineTo(c.x, c.y);
-            ctx.closePath();
-            ctx.fillStyle = fill;
-            ctx.fill();
-            // A hairline in the same colour closes the seams that
-            // antialiasing would otherwise leave as pale threads.
-            ctx.strokeStyle = fill;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-
-        function drawSky(p) {
-            var horizon = view.h * HORIZON;
-            var bands = p.sky.length;
-            for (var i = 0; i < bands; i++) {
-                ctx.fillStyle = p.sky[i];
-                ctx.fillRect(0, (horizon / bands) * i - 0.5,
-                    view.w, horizon / bands + 1);
-            }
-        }
-
-        function seaGrid(t, amp) {
-            var horizon = view.h * HORIZON;
-            var depth = view.h - horizon;
-            var cols = Math.max(7, Math.min(20, Math.round(view.w / 38)));
-            var rows = 9;
-            var step = view.w / cols;
-            var grid = [];
-            for (var r = 0; r <= rows; r++) {
-                var tr = r / rows;
-                var scale = 0.06 + tr * tr;
-                var baseY = horizon + depth * tr * tr;
-                if (r === rows) {
-                    // Overshoot the bottom edge so no gap opens up when the
-                    // last row of waves rides high.
-                    baseY = view.h + amp * 4 + 24;
-                }
-                var row = [];
-                for (var c = 0; c <= cols; c++) {
-                    var x = step * c + (noise(c, r) - 0.5) * step * 0.55 * tr;
-                    if (c === 0) {
-                        x = -4;
-                    } else if (c === cols) {
-                        x = view.w + 4;
-                    }
-                    var lift = r === 0 ? 0
-                        : waveAt(x + r * 31, t + r * 0.5, amp * scale)
-                            + (noise(c + 53, r) - 0.5) * amp * scale * 2.6;
-                    row.push({
-                        x: x,
-                        y: baseY + lift,
-                        // The same vertex as a point on a height field, so
-                        // each facet can be given a real surface normal.
-                        X: x,
-                        Y: -lift * 2.6,
-                        Z: r * 34
-                    });
-                }
-                grid.push(row);
-            }
-            return { grid: grid, cols: cols, rows: rows, horizon: horizon };
-        }
-
-        function faceShade(a, b, c) {
-            var ux = b.X - a.X;
-            var uy = b.Y - a.Y;
-            var uz = b.Z - a.Z;
-            var vx = c.X - a.X;
-            var vy = c.Y - a.Y;
-            var vz = c.Z - a.Z;
+        function pushFace(out, face, fog, water) {
+            var v = face.v;
+            var ux = v[1].x - v[0].x;
+            var uy = v[1].y - v[0].y;
+            var uz = v[1].z - v[0].z;
+            var vx = v[2].x - v[0].x;
+            var vy = v[2].y - v[0].y;
+            var vz = v[2].z - v[0].z;
             var nx = uy * vz - uz * vy;
             var ny = uz * vx - ux * vz;
             var nz = ux * vy - uy * vx;
@@ -538,139 +765,211 @@
             nx /= len;
             ny /= len;
             nz /= len;
-            if (ny < 0) {
-                nx = -nx;
-                ny = -ny;
-                nz = -nz;
-            }
-            return nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2];
-        }
-
-        function seaColour(p, rowRatio, shade) {
-            var ramp = p.sea;
-            var base = rowRatio * (ramp.length - 1) * 0.8;
-            var index = Math.round(base + (LIGHT[1] - shade) * 7);
-            return ramp[Math.max(0, Math.min(ramp.length - 1, index))];
-        }
-
-        function drawSea(p, t, amp) {
-            var g = seaGrid(t, amp);
-            for (var r = 0; r < g.rows; r++) {
-                var rowRatio = r / (g.rows - 1);
-                for (var c = 0; c < g.cols; c++) {
-                    var tl = g.grid[r][c];
-                    var tr2 = g.grid[r][c + 1];
-                    var bl = g.grid[r + 1][c];
-                    var br = g.grid[r + 1][c + 1];
-                    triangle(tl, tr2, bl, seaColour(p, rowRatio, faceShade(tl, tr2, bl)));
-                    triangle(tr2, br, bl, seaColour(p, rowRatio, faceShade(tr2, br, bl)));
+            if (water) {
+                if (ny < 0) {
+                    nx = -nx;
+                    ny = -ny;
+                    nz = -nz;
                 }
+                nx *= 6;
+                nz *= 6;
+                var wl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+                nx /= wl;
+                ny /= wl;
+                nz /= wl;
             }
-            return g;
+            var lambert = nx * LIGHT.x + ny * LIGHT.y + nz * LIGHT.z;
+            var k = AMBIENT + (1 - AMBIENT) * Math.max(0, lambert);
+
+            var a = project(v[0]);
+            var b = project(v[1]);
+            var c = project(v[2]);
+            if (!a || !b || !c) {
+                return;
+            }
+            // Everything off the top, bottom or sides can be skipped.
+            var minX = Math.min(a.x, b.x, c.x);
+            var maxX = Math.max(a.x, b.x, c.x);
+            var minY = Math.min(a.y, b.y, c.y);
+            var maxY = Math.max(a.y, b.y, c.y);
+            if (maxX < -2 || minX > view.w + 2 || maxY < -2 || minY > view.h + 2) {
+                return;
+            }
+
+            var depth = (a.z + b.z + c.z) / 3;
+            var base = face.c;
+            var r = base[0] * k;
+            var g = base[1] * k;
+            var bl = base[2] * k;
+            if (fog) {
+                var m = (depth - FOG_NEAR) / (FOG_FAR - FOG_NEAR);
+                m = m < 0 ? 0 : (m > 1 ? 1 : m);
+                m *= 0.96;
+                r += (fog[0] - r) * m;
+                g += (fog[1] - g) * m;
+                bl += (fog[2] - bl) * m;
+            }
+            out.push({ a: a, b: b, c: c, depth: depth, fill: rgb([r, g, bl]) });
         }
 
-        function drawHeadland(p) {
-            var horizon = view.h * HORIZON;
-            var h = view.h;
-            var w = view.w;
-            var at = function (fx, fy) {
-                return { x: w * fx, y: horizon + (h - horizon) * fy };
+        function collectSea(out, t) {
+            var cols = Math.max(8, Math.min(17, Math.round(view.w / 50)));
+            var rows = Math.max(8, Math.min(13, Math.round(view.h / 40)));
+            var near = 1.4;
+            var far = 210;
+            var prev = null;
+            for (var r = 0; r <= rows; r++) {
+                var d = near + (far - near) * Math.pow(r / rows, 2.7);
+                var z = CAM.z + d;
+                var half = (view.w * 0.5) * d / focal * 1.3 + 2;
+                var row = [];
+                for (var c = 0; c <= cols; c++) {
+                    var x = -half + 2 * half * (c / cols);
+                    row.push({
+                        x: x,
+                        y: waveHeight(x, z, time, d) + vertexChop(c, r, time, d),
+                        z: z
+                    });
+                }
+                if (prev) {
+                    for (var i = 0; i < cols; i++) {
+                        pushFace(out, { v: [prev[i], prev[i + 1], row[i + 1]], c: t.sea },
+                            t.skyLow, true);
+                        pushFace(out, { v: [prev[i], row[i + 1], row[i]], c: t.sea },
+                            t.skyLow, true);
+                    }
+                }
+                prev = row;
+            }
+        }
+
+        function collectObject(out, faces, tr, t) {
+            for (var i = 0; i < faces.length; i++) {
+                var f = faces[i];
+                pushFace(out, {
+                    v: [xform(f.v[0], tr), xform(f.v[1], tr), xform(f.v[2], tr)],
+                    c: f.c
+                }, t.skyLow, false);
+            }
+        }
+
+        function floatTransform(x, z, extraYaw, scale) {
+            var d = z - CAM.z;
+            var e = 0.7;
+            var lean = function (a, b) {
+                var r = Math.atan2(a - b, 2 * e);
+                return r < -0.26 ? -0.26 : (r > 0.26 ? 0.26 : r);
             };
-            var back = at(-0.02, 0.05);
-            var ridge = at(0.07, 0.11);
-            var peak = at(0.13, 0.08);
-            var tip = at(0.21, 0.27);
-            var mid = at(0.11, 0.41);
-            var left = at(-0.02, 0.34);
-            var foot = at(0.04, 0.70);
-            var edge = at(-0.02, 0.66);
-            var bottomLeft = { x: w * -0.02, y: h + 4 };
-            var bottomMid = { x: w * 0.09, y: h + 4 };
-
-            triangle(back, peak, ridge, p.land[0]);
-            triangle(back, ridge, left, p.land[2]);
-            triangle(peak, tip, ridge, p.land[1]);
-            triangle(ridge, tip, mid, p.land[3]);
-            triangle(ridge, mid, left, p.land[2]);
-            triangle(left, mid, foot, p.land[1]);
-            triangle(left, foot, edge, p.land[3]);
-            triangle(edge, foot, bottomLeft, p.land[2]);
-            triangle(foot, bottomMid, bottomLeft, p.land[1]);
+            var roll = lean(waveHeight(x + e, z, time, d),
+                waveHeight(x - e, z, time, d));
+            var pitch = lean(waveHeight(x, z + e, time, d),
+                waveHeight(x, z - e, time, d));
+            return {
+                x: x,
+                y: waveHeight(x, z, time, d),
+                z: z,
+                rx: -pitch,
+                rz: roll,
+                ry: extraYaw || 0,
+                s: scale || 1
+            };
         }
 
-        function potPosition(slot, g, amp, t) {
-            var horizon = g.horizon;
-            var depth = view.h - horizon;
-            var near = slot[1];
-            var baseY = horizon + depth * near * near;
-            var x = slot[0] * view.w;
-            var scale = 0.06 + near * near;
-            var y = baseY + waveAt(x + 13, t + near * 1.4, amp * scale);
-            return { x: x, y: y, size: 5 + near * 13 };
-        }
-
-        function drawPot(p, pos) {
-            var s = pos.size;
-            var x = pos.x;
-            var y = pos.y;
-            var top = y - s * 0.72;
-            var shoulder = y - s * 0.3;
-            var keel = { x: x, y: y + s * 0.3 };
-            // A flat topped float in three facets, so it still reads as a
-            // solid object when it is only ten pixels across.
-            triangle({ x: x - s * 0.5, y: shoulder }, { x: x - s * 0.26, y: top },
-                keel, p.potShade);
-            triangle({ x: x - s * 0.26, y: top }, { x: x + s * 0.26, y: top },
-                keel, p.pot);
-            triangle({ x: x + s * 0.26, y: top }, { x: x + s * 0.5, y: shoulder },
-                keel, p.potShade);
-            // Mast and pennant.
-            ctx.strokeStyle = p.pot;
-            ctx.lineWidth = Math.max(1, s * 0.1);
-            ctx.beginPath();
-            ctx.moveTo(x, top);
-            ctx.lineTo(x, top - s * 0.9);
-            ctx.stroke();
-            triangle({ x: x, y: top - s * 0.9 },
-                { x: x + s * 0.55, y: top - s * 0.68 },
-                { x: x, y: top - s * 0.42 }, p.pennant);
-        }
-
-        function drawWreck(p, pos) {
-            var s = pos.size * 0.75;
-            triangle({ x: pos.x - s, y: pos.y },
-                { x: pos.x - s * 0.3, y: pos.y - s * 0.55 },
-                { x: pos.x + s * 0.2, y: pos.y }, p.foam);
-            triangle({ x: pos.x - s * 0.1, y: pos.y },
-                { x: pos.x + s * 0.5, y: pos.y - s * 0.35 },
-                { x: pos.x + s, y: pos.y }, p.foam);
+        function drawSky(t) {
+            var grad = ctx.createLinearGradient(0, 0, 0, Math.max(horizonY, 1));
+            grad.addColorStop(0, rgb(t.skyTop));
+            grad.addColorStop(1, rgb(t.skyLow));
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, view.w, horizonY + 1);
+            // Anything the mesh fails to cover reads as distant water.
+            ctx.fillStyle = rgb(t.skyLow);
+            ctx.fillRect(0, horizonY, view.w, view.h - horizonY);
         }
 
         function draw() {
             if (!ctx || view.w === 0) {
                 return;
             }
-            var p = palette();
-            ctx.clearRect(0, 0, view.w, view.h);
-            drawSky(p);
-            var g = drawSea(p, time, amplitude);
-            drawHeadland(p);
+            var t = theme();
+            if (builtFor !== (darkScheme.matches ? 'dark' : 'light')) {
+                build();
+            }
+            drawSky(t);
+
+            var list = [];
+            collectSea(list, t);
+            collectObject(list, rock, { x: -7.6, y: -0.75, z: 11.5, ry: 0.6, s: 0.85 }, t);
 
             var offshore = state.offshore;
             var inshore = POTS - offshore;
             var wrecked = state.phase === 'result' && state.current;
-
-            // Offshore first, so the nearer inshore pots overlap them.
-            for (var i = 0; i < offshore; i++) {
-                var op = potPosition(OFFSHORE_SLOTS[i], g, amplitude, time);
+            var i;
+            for (i = 0; i < inshore; i++) {
+                collectObject(list, buoy,
+                    floatTransform(INSHORE[i][0], INSHORE[i][1]), t);
+            }
+            for (i = 0; i < offshore; i++) {
+                var slot = OFFSHORE[i];
                 if (wrecked) {
-                    drawWreck(p, op);
+                    collectObject(list, foam,
+                        { x: slot[0], y: surfaceAt(slot[0], slot[1]) + 0.02, z: slot[1] }, t);
                 } else {
-                    drawPot(p, op);
+                    collectObject(list, buoy, floatTransform(slot[0], slot[1]), t);
                 }
             }
-            for (var j = 0; j < inshore; j++) {
-                drawPot(p, potPosition(INSHORE_SLOTS[j], g, amplitude, time));
+
+            // The boat, and whoever is in it.
+            var boatT = floatTransform(BOAT.x, BOAT.z, BOAT.yaw, BOAT.scale);
+            collectObject(list, hull, boatT, t);
+
+            // The figure turns to face the camera regardless of the hull's
+            // heading, and nods along with the swell.
+            var seat = {
+                y: 0.17,
+                z: -0.18,
+                ry: Math.PI - BOAT.yaw + 0.18 + Math.sin(time * 0.6) * 0.09
+            };
+            for (i = 0; i < figure.length; i++) {
+                var part = figure[i];
+                var local = part.t;
+                if (part.arm) {
+                    local = {
+                        x: local.x,
+                        y: local.y,
+                        rz: part.arm * (0.1 + cheer * 2.0)
+                    };
+                }
+                var composed = [];
+                for (var j = 0; j < part.f.length; j++) {
+                    var f = part.f[j];
+                    composed.push({
+                        v: [
+                            xform(xform(xform(f.v[0], local), seat), boatT),
+                            xform(xform(xform(f.v[1], local), seat), boatT),
+                            xform(xform(xform(f.v[2], local), seat), boatT)
+                        ],
+                        c: f.c
+                    });
+                }
+                collectObject(list, composed, {}, t);
+            }
+
+            list.sort(function (p, q) { return q.depth - p.depth; });
+
+            for (i = 0; i < list.length; i++) {
+                var tri = list[i];
+                ctx.beginPath();
+                ctx.moveTo(tri.a.x, tri.a.y);
+                ctx.lineTo(tri.b.x, tri.b.y);
+                ctx.lineTo(tri.c.x, tri.c.y);
+                ctx.closePath();
+                ctx.fillStyle = tri.fill;
+                ctx.fill();
+                // Hairline in the same colour, or antialiasing leaves pale
+                // threads along every shared edge.
+                ctx.strokeStyle = tri.fill;
+                ctx.lineWidth = 1;
+                ctx.stroke();
             }
         }
 
@@ -679,8 +978,14 @@
             var delta = lastFrame ? Math.min((now - lastFrame) / 1000, 0.05) : 0.016;
             lastFrame = now;
             time += delta;
-            amplitude += (targetAmplitude - amplitude) * Math.min(delta * 3, 1);
-            draw();
+            amp += (targetAmp - amp) * Math.min(delta * 2.4, 1);
+            cheer += (targetCheer - cheer) * Math.min(delta * 4.5, 1);
+            // Around 32 frames a second is plenty for a gentle swell, and
+            // halves the work on a phone.
+            if (now - lastDraw >= 30) {
+                lastDraw = now;
+                draw();
+            }
             schedule();
         }
 
@@ -700,10 +1005,15 @@
         }
 
         function sync() {
-            // Rough water on a day the current ran, glassy otherwise.
-            targetAmplitude = (state.phase === 'result' && state.current) ? 13 : 4;
+            var rough = state.phase === 'result' && state.current;
+            targetAmp = rough ? 1.9 : 1;
+            targetCheer = (state.phase === 'result' && !state.current) ? 1 : 0;
+            if (state.phase === 'done') {
+                targetCheer = state.balance > STARTING_BALANCE ? 1 : 0;
+            }
             if (reduceMotion.matches) {
-                amplitude = targetAmplitude;
+                amp = targetAmp;
+                cheer = targetCheer;
                 draw();
             } else {
                 schedule();
@@ -722,6 +1032,7 @@
             if (!ctx) {
                 return;
             }
+            build();
             resize();
 
             if (window.ResizeObserver) {
@@ -753,7 +1064,10 @@
                 stop();
                 sync();
             });
-            listen(darkScheme, draw);
+            listen(darkScheme, function () {
+                build();
+                draw();
+            });
         }
 
         return { init: init, sync: sync, draw: draw };

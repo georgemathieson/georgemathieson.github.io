@@ -57,12 +57,16 @@ It is wired up by `content/lobster-pots.md` (which sets
 `layouts/_default/lobster-pots.html`, `assets/js/lobster-pots.js` and
 `assets/scss/_lobster-pots.scss`.
 
+The scene is low-poly 3D drawn by a small renderer written for the job
+(perspective projection, depth sort, flat shading) rather than a 3D library,
+so the site still carries no third-party JavaScript. Money is in pounds.
+
 The canvas is decoration. Every value it draws is also written into the
 markup around it, so the game is playable by keyboard and by screen reader
 with the picture ignored entirely, and it degrades to an explanation of the
 rules when JavaScript is off. The rendering honours `prefers-reduced-motion`
-(one static frame, no loop) and stops animating when the canvas scrolls out
-of view or the tab is hidden.
+(one static frame, no loop), caps itself at about 32 frames a second, and
+stops animating when the canvas scrolls out of view or the tab is hidden.
 
 ## Deployment
 

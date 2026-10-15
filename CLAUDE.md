@@ -39,6 +39,15 @@ pushes to `main`. See README.md for build and authoring mechanics.
   on an animation frame (a backgrounded tab stops firing them). If a
   second page ever wants JavaScript, that is a conversation, not a copy
   and paste.
+- The game's 3D is a hand-written renderer in `assets/js/lobster-pots.js`
+  (projection, painter's sort, flat shading), not a library: the site has
+  no third-party JavaScript and should keep none. Two things that cost an
+  afternoon and are easy to hit again: set `lineJoin` to round, or the
+  hairline stroke that hides seams turns every edge-on triangle into a
+  spike; and a gentle swell tilts facets too little for Lambert shading
+  to show, so the water normals are deliberately exaggerated.
+- The scene is the one place with warm colour (the hat and the buoys)
+  against the teal. It is content, like a photograph, not interface.
 - `[hidden]` is settled in `_base.scss` with `display: none !important`,
   because a class that sets `display` otherwise outranks it and leaves
   "hidden" panels on screen. Toggle visibility with the attribute.

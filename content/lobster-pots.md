@@ -5,7 +5,7 @@ lead: "Six lobster pots, seven days, and a sea that keeps eating your equipment.
 layout: lobster-pots
 ---
 
-You run a lobster business. You have six pots and fifty dollars. Every morning
+You run a lobster business. You have six pots and fifty pounds. Every morning
 you decide how many pots go in the shallow water near the shore, where the
 catch is small and safe, and how many go out into the deep, where the catch is
 much better and a bad day destroys them.
@@ -22,8 +22,8 @@ comes in **under** the forecast, a current runs. Otherwise the water stays calm.
 
 | | Inshore | Offshore |
 | --- | --- | --- |
-| No current | earns $2 a pot | earns $6 a pot |
-| Current | earns $4 a pot | destroyed, $10 a pot to replace |
+| No current | earns £2 a pot | earns £6 a pot |
+| Current | earns £4 a pot | destroyed, £10 a pot to replace |
 
 You must always have six pots, so anything the sea takes has to be bought back
 the same day. If that puts you in debt, you go into debt.
@@ -41,12 +41,12 @@ Work the expected value per pot and the picture is flat:
 
 | Forecast | Chance of a current | Inshore | Offshore |
 | --- | --- | --- | --- |
-| 1 | 0% | $2.00 | **$6.00** |
-| 2 | 17% | $2.33 | **$3.33** |
-| 3 | 33% | **$2.67** | $0.67 |
-| 4 | 50% | **$3.00** | -$2.00 |
-| 5 | 67% | **$3.33** | -$4.67 |
-| 6 | 83% | **$3.67** | -$7.33 |
+| 1 | 0% | £2.00 | **£6.00** |
+| 2 | 17% | £2.33 | **£3.33** |
+| 3 | 33% | **£2.67** | £0.67 |
+| 4 | 50% | **£3.00** | -£2.00 |
+| 5 | 67% | **£3.33** | -£4.67 |
+| 6 | 83% | **£3.67** | -£7.33 |
 
 Offshore is only worth it when the chance of a current is under about two in
 nine. In practice: go deep on a one or a two, and keep everything inshore from
@@ -58,8 +58,8 @@ Look at the row for three.
 
 The game tells you good weather is predicted. It is technically right, three is
 in the good half. But a third of the time a current still runs, and that is
-already enough to make the deep water a losing bet. Offshore returns 67 cents a
-pot against inshore's $2.67.
+already enough to make the deep water a losing bet. Offshore returns 67 pence a
+pot against inshore's £2.67.
 
 So the player who listens to the forecast loses money to the player who reads
 the number behind it. I like that a lot. It is a very small, very cheap lesson
@@ -70,9 +70,9 @@ fourteen year olds with two dice.
 
 Three days behave differently, which is where the rest of the syllabus sneaks in.
 
-**Tuesday** is a lottery. Pick the sum of two dice and win $100 if you call it.
-The honest answer is seven, which comes up six times in thirty six, worth $16.67
-on average. Any other guess is worse, and two and twelve are worth $2.78.
+**Tuesday** is a lottery. Pick the sum of two dice and win £100 if you call it.
+The honest answer is seven, which comes up six times in thirty six, worth £16.67
+on average. Any other guess is worse, and two and twelve are worth £2.78.
 
 **Thursday** is tax day. Eight per cent of your profit so far, and nothing at all
 if you have not made any. Losing money has never felt so rewarding.
