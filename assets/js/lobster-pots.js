@@ -393,17 +393,31 @@
         var FOG_NEAR = 22;
         var FOG_FAR = 150;
 
-        var BOAT = { x: -1.0, z: 0.5, yaw: -0.5, scale: 1.3 };
+        var BOAT = { x: -1.3, z: -0.4, yaw: -0.5, scale: 1.3 };
+
+        // Face kinds. SOLID is closed geometry and gets back faces culled;
+        // DOUBLE is open geometry (the inside of a boat) that must not be;
+        // FLAT is a ground plane forced to face up; WATER is FLAT with its
+        // normals exaggerated so a gentle swell still reads as facets.
+        var SOLID = 0;
+        var DOUBLE = 1;
+        var FLAT = 2;
+        var WATER = 3;
 
         // Where the pots go, in world coordinates. Inshore sits in the
         // shallows by the rock; offshore is out towards the horizon.
         var INSHORE = [
-            [-3.6, 4.2], [-2.3, 6.4], [-4.7, 7.6],
-            [-1.6, 5.0], [-3.2, 9.4], [-1.2, 8.0]
+            [-9.0, 17.5], [-6.0, 19.5], [-11.5, 20.0],
+            [-4.5, 16.0], [-8.5, 22.0], [-3.0, 20.0]
         ];
         var OFFSHORE = [
-            [2.6, 10.5], [4.6, 13.5], [1.2, 15.0],
-            [5.8, 10.0], [3.2, 17.5], [6.8, 15.0]
+            [3.8, 4.6], [7.0, 8.2], [1.8, 10.6],
+            [9.2, 5.6], [5.0, 13.6], [10.8, 10.2]
+        ];
+        // Working boats on their moorings inside the harbour arm.
+        var MOORED = [
+            [-1.9, 28.6, 0.6, 0.8], [0.3, 30.0, -0.9, 0.7],
+            [-4.1, 27.4, 0.3, 0.75]
         ];
 
         var reduceMotion = window.matchMedia
@@ -417,8 +431,15 @@
             light: {
                 skyTop: [242, 245, 245],
                 skyLow: [214, 231, 229],
-                sea: [36, 150, 142],
+                sea: [44, 168, 158],
                 rock: [168, 168, 162],
+                grass: [118, 142, 98],
+                cliff: [138, 134, 118],
+                sand: [234, 222, 198],
+                wall: [242, 240, 234],
+                wallWarm: [226, 215, 198],
+                roof: [98, 102, 108],
+                pier: [152, 148, 138],
                 hull: [168, 182, 190],
                 floor: [150, 122, 88],
                 eye: [58, 44, 40],
@@ -432,8 +453,15 @@
             dark: {
                 skyTop: [22, 24, 25],
                 skyLow: [18, 46, 45],
-                sea: [22, 104, 98],
+                sea: [24, 114, 107],
                 rock: [92, 94, 92],
+                grass: [62, 76, 54],
+                cliff: [74, 72, 64],
+                sand: [132, 124, 108],
+                wall: [198, 196, 190],
+                wallWarm: [178, 170, 156],
+                roof: [62, 66, 70],
+                pier: [94, 92, 86],
                 hull: [112, 128, 136],
                 floor: [110, 90, 66],
                 eye: [42, 32, 30],
@@ -671,10 +699,141 @@
             return faces;
         }
 
+        // --- The town ------------------------------------------------
+        //
+        // St Ives, roughly: a shoulder of land coming in from the left,
+        // whitewashed cottages with slate roofs stacked up it, a church
+        // tower, and a harbour arm with a light on the end.
+
+        var SHORE = [
+            [-30, 27], [-24, 24.5], [-18, 22.5], [-13, 21.5],
+            [-8.5, 21.5], [-5, 22.5], [-2.5, 25], [-1.2, 29], [-1, 34]
+        ];
+        var RIDGE = [
+            [-33, 36, 7.5], [-25, 34, 9.2], [-19, 32, 7], [-14, 31, 6],
+            [-9, 31, 7.6], [-5.5, 32, 8.6], [-3.5, 34, 6.5],
+            [-3, 38, 5], [-3.5, 43, 4]
+        ];
+
+        // x, z, width, height, depth, yaw, roof rise, ground height
+        var COTTAGES = [
+            [-22.5, 26.4, 3.2, 2.4, 2.6, 0.15, 1.2, 0.4],
+            [-18.5, 24.4, 2.8, 2.2, 2.4, -0.1, 1.1, 0.3],
+            [-15.0, 23.4, 3.0, 2.6, 2.6, 0.05, 1.2, 0.3],
+            [-11.5, 23.2, 2.6, 2.2, 2.3, 0.2, 1.0, 0.3],
+            [-8.0, 23.4, 3.0, 2.4, 2.5, -0.15, 1.1, 0.35],
+            [-5.0, 24.6, 2.6, 2.2, 2.4, 0.35, 1.0, 0.4],
+            [-20.0, 29.4, 3.0, 2.4, 2.6, 0.1, 1.2, 2.2],
+            [-16.0, 28.0, 2.8, 2.6, 2.4, -0.2, 1.1, 2.5],
+            [-12.0, 27.4, 3.2, 2.4, 2.6, 0.1, 1.2, 2.7],
+            [-8.5, 27.8, 2.6, 2.2, 2.3, 0.25, 1.0, 2.9],
+            [-17.5, 32.4, 3.0, 2.4, 2.6, 0, 1.2, 4.8],
+            [-13.2, 31.4, 2.8, 2.2, 2.4, 0.15, 1.1, 5.2]
+        ];
+
+        var TOWN = { x: 4.5, z: 10 };
+
+        function landFaces(grass, cliff) {
+            var faces = [];
+            for (var i = 0; i < SHORE.length - 1; i++) {
+                var a = { x: SHORE[i][0], y: 0, z: SHORE[i][1] };
+                var b = { x: SHORE[i + 1][0], y: 0, z: SHORE[i + 1][1] };
+                var c = { x: RIDGE[i][0], y: RIDGE[i][2], z: RIDGE[i][1] };
+                var d = { x: RIDGE[i + 1][0], y: RIDGE[i + 1][2], z: RIDGE[i + 1][1] };
+                quad(faces, a, c, d, b, i % 2 ? grass : cliff);
+            }
+            return faces;
+        }
+
+        function sandFaces(colour) {
+            var faces = [];
+            for (var i = 0; i < SHORE.length - 1; i++) {
+                var a = { x: SHORE[i][0], y: 0.015, z: SHORE[i][1] - 1.3 };
+                var b = { x: SHORE[i][0], y: 0.015, z: SHORE[i][1] };
+                var c = { x: SHORE[i + 1][0], y: 0.015, z: SHORE[i + 1][1] };
+                var d = { x: SHORE[i + 1][0], y: 0.015, z: SHORE[i + 1][1] - 1.3 };
+                quad(faces, a, b, c, d, colour);
+            }
+            return faces;
+        }
+
+        function roofFaces(w, d, base, rise, colour) {
+            var e = 0.16;
+            var hw = w / 2 + e;
+            var hd = d / 2 + e;
+            var bl = { x: -hw, y: base, z: -hd };
+            var br = { x: hw, y: base, z: -hd };
+            var fr = { x: hw, y: base, z: hd };
+            var fl = { x: -hw, y: base, z: hd };
+            var rb = { x: 0, y: base + rise, z: -hd };
+            var rf = { x: 0, y: base + rise, z: hd };
+            var faces = [];
+            quad(faces, bl, fl, rf, rb, colour);
+            quad(faces, fr, br, rb, rf, colour);
+            faces.push({ v: [bl, rb, br], c: colour });
+            faces.push({ v: [fl, fr, rf], c: colour });
+            return faces;
+        }
+
+        function cottageFaces(w, h, d, rise, wall, roof) {
+            var faces = boxFaces(w, h, d, wall, { y: h / 2 });
+            var r = roofFaces(w, d, h, rise, roof);
+            for (var i = 0; i < r.length; i++) {
+                faces.push(r[i]);
+            }
+            return faces;
+        }
+
+        function bake(out, faces, tr) {
+            for (var i = 0; i < faces.length; i++) {
+                var f = faces[i];
+                out.push({
+                    v: [xform(f.v[0], tr), xform(f.v[1], tr), xform(f.v[2], tr)],
+                    c: f.c
+                });
+            }
+        }
+
+        function buildTown(t) {
+            var out = [];
+            var i;
+            var at = function (x, y, z, ry) {
+                return { x: x + TOWN.x, y: y, z: z + TOWN.z, ry: ry || 0 };
+            };
+            bake(out, landFaces(t.grass, t.cliff), at(0, 0, 0));
+            bake(out, sandFaces(t.sand), at(0, 0, 0));
+
+            for (i = 0; i < COTTAGES.length; i++) {
+                var c = COTTAGES[i];
+                bake(out, cottageFaces(c[2], c[3], c[4], c[6],
+                    i % 3 === 1 ? t.wallWarm : t.wall, t.roof),
+                    at(c[0], c[7], c[1], c[5]));
+            }
+
+            // The church tower, which is the thing you actually pick the
+            // town out by from the water.
+            bake(out, boxFaces(1.7, 5.0, 1.7, t.wallWarm, { y: 2.5 }),
+                at(-13.2, 4.6, 28.2));
+            bake(out, boxFaces(2.0, 0.4, 2.0, t.roof, { y: 0.2 }),
+                at(-13.2, 9.6, 28.2));
+
+            // The harbour arm, and its light.
+            bake(out, boxFaces(4.6, 1.2, 1.1, t.pier, { y: 0.6 }),
+                at(-6.6, 0, 20.0, -0.5));
+            bake(out, boxFaces(4.0, 1.2, 1.1, t.pier, { y: 0.6 }),
+                at(-3.3, 0, 18.2, -0.3));
+            bake(out, boxFaces(3.0, 1.2, 1.1, t.pier, { y: 0.6 }),
+                at(-0.4, 0, 17.2, -0.08));
+            bake(out, drumFaces(0.5, 2.0, 6, t.wall), at(1.1, 2.1, 17.0));
+            bake(out, coneFaces(0.58, 0.55, 6, t.roof), at(1.1, 3.1, 17.0));
+            return out;
+        }
+
         // --- The cast, built once ---
 
         var hull = null;
         var figure = null;
+        var town = null;
         var buoy = null;
         var rock = null;
         var foam = null;
@@ -697,7 +856,8 @@
             ];
             buoy = buoyFaces(t.buoyTop, t.buoyLow);
             rock = rockFaces(t.rock);
-            foam = discFaces(0.42, t.foam);
+            town = buildTown(t);
+            foam = coneFaces(0.5, 0.26, 7, t.foam);
             builtFor = darkScheme.matches ? 'dark' : 'light';
         }
 
@@ -750,7 +910,7 @@
             return 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')';
         }
 
-        function pushFace(out, face, fog, water) {
+        function pushFace(out, face, fog, kind) {
             var v = face.v;
             var ux = v[1].x - v[0].x;
             var uy = v[1].y - v[0].y;
@@ -765,12 +925,33 @@
             nx /= len;
             ny /= len;
             nz /= len;
-            if (water) {
+            if (kind === SOLID) {
+                var mx = (v[0].x + v[1].x + v[2].x) / 3;
+                var my = (v[0].y + v[1].y + v[2].y) / 3;
+                var mz = (v[0].z + v[1].z + v[2].z) / 3;
+                if (nx * (CAM.x - mx) + ny * (CAM.y - my)
+                        + nz * (CAM.z - mz) <= 0) {
+                    return;
+                }
+            }
+            if (kind === DOUBLE) {
+                var dx2 = CAM.x - (v[0].x + v[1].x + v[2].x) / 3;
+                var dy2 = CAM.y - (v[0].y + v[1].y + v[2].y) / 3;
+                var dz2 = CAM.z - (v[0].z + v[1].z + v[2].z) / 3;
+                if (nx * dx2 + ny * dy2 + nz * dz2 < 0) {
+                    nx = -nx;
+                    ny = -ny;
+                    nz = -nz;
+                }
+            }
+            if (kind === FLAT || kind === WATER) {
                 if (ny < 0) {
                     nx = -nx;
                     ny = -ny;
                     nz = -nz;
                 }
+            }
+            if (kind === WATER) {
                 nx *= 6;
                 nz *= 6;
                 var wl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
@@ -834,22 +1015,30 @@
                 if (prev) {
                     for (var i = 0; i < cols; i++) {
                         pushFace(out, { v: [prev[i], prev[i + 1], row[i + 1]], c: t.sea },
-                            t.skyLow, true);
+                            t.skyLow, WATER);
                         pushFace(out, { v: [prev[i], row[i + 1], row[i]], c: t.sea },
-                            t.skyLow, true);
+                            t.skyLow, WATER);
                     }
                 }
                 prev = row;
             }
         }
 
-        function collectObject(out, faces, tr, t) {
+        function collectObject(out, faces, tr, t, kind) {
             for (var i = 0; i < faces.length; i++) {
                 var f = faces[i];
                 pushFace(out, {
                     v: [xform(f.v[0], tr), xform(f.v[1], tr), xform(f.v[2], tr)],
                     c: f.c
-                }, t.skyLow, false);
+                }, t.skyLow, kind === undefined ? SOLID : kind);
+            }
+        }
+
+        // The town never moves and neither does the camera, so it is baked
+        // into world coordinates once and pushed straight through.
+        function collectStatic(out, faces, t, kind) {
+            for (var i = 0; i < faces.length; i++) {
+                pushFace(out, faces[i], t.skyLow, kind);
             }
         }
 
@@ -898,7 +1087,15 @@
 
             var list = [];
             collectSea(list, t);
-            collectObject(list, rock, { x: -7.6, y: -0.75, z: 11.5, ry: 0.6, s: 0.85 }, t);
+            collectStatic(list, town, t, SOLID);
+            // A sea stack off the point, so the open water is not empty.
+            collectObject(list, rock,
+                { x: -11.0, y: -1.0, z: 23.0, ry: 0.6, s: 0.55 }, t, SOLID);
+            for (var m = 0; m < MOORED.length; m++) {
+                collectObject(list, hull,
+                    floatTransform(MOORED[m][0], MOORED[m][1], MOORED[m][2],
+                        MOORED[m][3]), t, DOUBLE);
+            }
 
             var offshore = state.offshore;
             var inshore = POTS - offshore;
@@ -906,21 +1103,22 @@
             var i;
             for (i = 0; i < inshore; i++) {
                 collectObject(list, buoy,
-                    floatTransform(INSHORE[i][0], INSHORE[i][1]), t);
+                    floatTransform(INSHORE[i][0], INSHORE[i][1]), t, SOLID);
             }
             for (i = 0; i < offshore; i++) {
                 var slot = OFFSHORE[i];
                 if (wrecked) {
                     collectObject(list, foam,
-                        { x: slot[0], y: surfaceAt(slot[0], slot[1]) + 0.02, z: slot[1] }, t);
+                        { x: slot[0], y: surfaceAt(slot[0], slot[1]) - 0.05, z: slot[1] },
+                        t, SOLID);
                 } else {
-                    collectObject(list, buoy, floatTransform(slot[0], slot[1]), t);
+                    collectObject(list, buoy, floatTransform(slot[0], slot[1]), t, SOLID);
                 }
             }
 
             // The boat, and whoever is in it.
             var boatT = floatTransform(BOAT.x, BOAT.z, BOAT.yaw, BOAT.scale);
-            collectObject(list, hull, boatT, t);
+            collectObject(list, hull, boatT, t, DOUBLE);
 
             // The figure turns to face the camera regardless of the hull's
             // heading, and nods along with the swell.

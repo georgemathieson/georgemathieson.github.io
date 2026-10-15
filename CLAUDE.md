@@ -46,8 +46,19 @@ pushes to `main`. See README.md for build and authoring mechanics.
   hairline stroke that hides seams turns every edge-on triangle into a
   spike; and a gentle swell tilts facets too little for Lambert shading
   to show, so the water normals are deliberately exaggerated.
+- The scene is St Ives from the water: whitewashed cottages with slate
+  roofs up a headland, a harbour arm with a light on the end, boats on
+  their moorings, and the pots as orange buoys. Inshore is up by the
+  town, offshore is the open water in the foreground, which is the right
+  way round given the camera sits out in the bay.
 - The scene is the one place with warm colour (the hat and the buoys)
   against the teal. It is content, like a photograph, not interface.
+- Faces are drawn in one of four kinds. SOLID is closed geometry and has
+  its back faces culled, which is what pays for the town; DOUBLE is open
+  geometry (the inside of a boat) that must not be culled and is lit
+  two-sided; FLAT is a ground plane forced to face up; WATER is FLAT with
+  exaggerated normals. Getting the kind wrong shows up as a hole in a
+  hull or a sheet of black, not as an error.
 - `[hidden]` is settled in `_base.scss` with `display: none !important`,
   because a class that sets `display` otherwise outranks it and leaves
   "hidden" panels on screen. Toggle visibility with the attribute.

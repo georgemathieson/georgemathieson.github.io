@@ -58,8 +58,10 @@ It is wired up by `content/lobster-pots.md` (which sets
 `assets/scss/_lobster-pots.scss`.
 
 The scene is low-poly 3D drawn by a small renderer written for the job
-(perspective projection, depth sort, flat shading) rather than a 3D library,
-so the site still carries no third-party JavaScript. Money is in pounds.
+(perspective projection, back-face culling, depth sort, flat shading) rather
+than a 3D library, so the site still carries no third-party JavaScript. It
+shows a Cornish harbour town from the water, with the pots as orange buoys.
+Money is in pounds.
 
 The canvas is decoration. Every value it draws is also written into the
 markup around it, so the game is playable by keyboard and by screen reader
