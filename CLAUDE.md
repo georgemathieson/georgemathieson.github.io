@@ -28,9 +28,40 @@ pushes to `main`. See README.md for build and authoring mechanics.
   never a primitive, never a raw hex.
 - Both themes must hold WCAG 2.2 AA contrast. When touching a primitive,
   recalculate the ratios documented in `_colours.scss`.
-- Dark mode follows `prefers-color-scheme`. There is no toggle and the
-  site ships zero JavaScript; keep it that way unless George says
-  otherwise.
+- Dark mode follows `prefers-color-scheme`. There is no toggle, and no
+  page ships JavaScript except the one listed below; keep it that way
+  unless George says otherwise.
+- The one JavaScript page is `/lobster-pots/`, a canvas game. The
+  exception is scoped to it: the layout `layouts/_default/lobster-pots.html`
+  is the only one that loads a script, and nothing it needs may leak into
+  a shared partial. Inside it the canvas is decoration only, every value
+  it draws is written into the markup as well, and game state never waits
+  on an animation frame (a backgrounded tab stops firing them). If a
+  second page ever wants JavaScript, that is a conversation, not a copy
+  and paste.
+- The game's 3D is a hand-written renderer in `assets/js/lobster-pots.js`
+  (projection, painter's sort, flat shading), not a library: the site has
+  no third-party JavaScript and should keep none. Two things that cost an
+  afternoon and are easy to hit again: set `lineJoin` to round, or the
+  hairline stroke that hides seams turns every edge-on triangle into a
+  spike; and a gentle swell tilts facets too little for Lambert shading
+  to show, so the water normals are deliberately exaggerated.
+- The scene is St Ives from the water: whitewashed cottages with slate
+  roofs up a headland, a harbour arm with a light on the end, boats on
+  their moorings, and the pots as orange buoys. Inshore is up by the
+  town, offshore is the open water in the foreground, which is the right
+  way round given the camera sits out in the bay.
+- The scene is the one place with warm colour (the hat and the buoys)
+  against the teal. It is content, like a photograph, not interface.
+- Faces are drawn in one of four kinds. SOLID is closed geometry and has
+  its back faces culled, which is what pays for the town; DOUBLE is open
+  geometry (the inside of a boat) that must not be culled and is lit
+  two-sided; FLAT is a ground plane forced to face up; WATER is FLAT with
+  exaggerated normals. Getting the kind wrong shows up as a hole in a
+  hull or a sheet of black, not as an error.
+- `[hidden]` is settled in `_base.scss` with `display: none !important`,
+  because a class that sets `display` otherwise outranks it and leaves
+  "hidden" panels on screen. Toggle visibility with the attribute.
 - SCSS uses BEM class naming, one partial per block. Hugo compiles it
   with libsass, so use `@import` (not `@use`) and wrap CSS functions
   with mixed units in `unquote(...)`.
@@ -64,12 +95,15 @@ pushes to `main`. See README.md for build and authoring mechanics.
 
 ## Accessibility
 
-- The target is WCAG 2.2 AA and it is CI-enforced: axe scans five pages
+- The target is WCAG 2.2 AA and it is CI-enforced: axe scans six pages
   in both colour schemes on every PR (`.github/workflows/accessibility.yml`).
 - Preserve the structural furniture: one `h1` per page (visually hidden
   on the homepage), sequential heading levels, skip link, landmarks,
   `aria-current` on active nav, `time[datetime]`, visible focus styles,
   touch targets ≥ 24px.
+- Anything that scrolls sideways (the game ledger, any wide table) needs
+  `tabindex="0"` plus a name, or axe fails it as a scrollable region a
+  keyboard cannot reach.
 
 ## Writing for the blog
 

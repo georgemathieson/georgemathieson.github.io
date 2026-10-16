@@ -1,0 +1,237 @@
+// Lobster Pots. The canvas is decoration: every value it draws is also
+// written into the markup, so the block has to read sensibly with the
+// picture ignored entirely.
+
+.lobster-pots {
+    margin: $space-32 0;
+
+    &__lead {
+        font-size: 1.15rem;
+        color: var(--colour-text-muted);
+    }
+
+    &__game {
+        display: none;
+    }
+
+    &[data-ready] {
+        .lobster-pots__nojs {
+            display: none;
+        }
+
+        .lobster-pots__game {
+            display: flex;
+            flex-direction: column;
+            gap: $space-16;
+        }
+    }
+
+    &__nojs {
+        padding: $space-16;
+        border: 1px solid var(--colour-border);
+        background: var(--colour-surface-raised);
+        margin: 0;
+    }
+
+    &__status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $space-32;
+        padding-bottom: $space-8;
+        border-bottom: 1px solid var(--colour-border);
+    }
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        gap: $space-4;
+        margin: 0;
+    }
+
+    &__stat-label {
+        font-size: 0.875rem;
+        color: var(--colour-text-muted);
+    }
+
+    &__stat-value {
+        font-size: 1.35rem;
+        line-height: 1.2;
+
+        // Never colour alone: a debt is signalled by the minus sign the
+        // script writes into the text, and underlined as well.
+        &[data-negative="true"] {
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 0.2em;
+        }
+    }
+
+    &__canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: unquote("3 / 2");
+        border: 1px solid var(--colour-border);
+        background: var(--colour-surface-raised);
+    }
+
+    &__phase {
+        display: flex;
+        flex-direction: column;
+        gap: $space-16;
+    }
+
+    &__phase-title {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    &__forecast {
+        display: flex;
+        align-items: center;
+        gap: $space-16;
+    }
+
+    &__forecast-text {
+        margin: 0;
+    }
+
+    &__split {
+        display: flex;
+        flex-direction: column;
+        gap: $space-8;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        min-width: 0;
+    }
+
+    &__legend {
+        padding: 0;
+    }
+
+    &__segments {
+        display: flex;
+        gap: $space-4;
+    }
+
+    &__segment {
+        flex: 1 1 0;
+        min-width: 0;
+        // Comfortably past the 24px of WCAG 2.5.8, and thumb sized.
+        min-height: 2.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--colour-border-strong);
+        background: var(--colour-surface);
+        cursor: pointer;
+    }
+
+    &__segment-input {
+        &:checked + .lobster-pots__segment {
+            background: var(--colour-accent);
+            color: var(--colour-surface);
+            font-weight: 700;
+        }
+
+        &:focus-visible + .lobster-pots__segment {
+            outline: 2px solid var(--colour-accent);
+            outline-offset: 2px;
+        }
+    }
+
+    &__split-text {
+        margin: 0;
+        color: var(--colour-text-muted);
+    }
+
+    &__lottery {
+        display: flex;
+        flex-direction: column;
+        gap: $space-8;
+    }
+
+    &__select {
+        min-height: 2.75rem;
+        padding: 0 $space-8;
+        font: inherit;
+        color: var(--colour-text);
+        background: var(--colour-surface);
+        border: 1px solid var(--colour-border-strong);
+
+        &:focus-visible {
+            outline: 2px solid var(--colour-accent);
+            outline-offset: 2px;
+        }
+    }
+
+    &__button {
+        min-height: 2.75rem;
+        padding: $space-8 $space-16;
+        font: inherit;
+        font-weight: 700;
+        color: var(--colour-surface);
+        background: var(--colour-accent);
+        border: 2px solid var(--colour-accent);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--colour-accent-hover);
+            border-color: var(--colour-accent-hover);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--colour-accent);
+            outline-offset: 2px;
+        }
+    }
+
+    &__lines {
+        margin: 0;
+        padding-left: $space-32;
+
+        li {
+            margin-bottom: $space-4;
+        }
+    }
+
+    &__final {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    &__best {
+        color: var(--colour-text-muted);
+        margin: 0;
+    }
+
+    &__table-wrap {
+        // Focusable so a keyboard can scroll it sideways on a narrow
+        // screen (axe: scrollable-region-focusable).
+        overflow-x: auto;
+
+        &:focus-visible {
+            outline: 2px solid var(--colour-accent);
+            outline-offset: 2px;
+        }
+    }
+
+    &__ledger {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.875rem;
+
+        th,
+        td {
+            padding: $space-8;
+            text-align: left;
+            border-bottom: 1px solid var(--colour-border);
+            white-space: nowrap;
+        }
+
+        thead th {
+            border-bottom: 2px solid var(--colour-border-strong);
+        }
+    }
+}

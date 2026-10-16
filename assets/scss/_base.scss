@@ -89,6 +89,12 @@ hr {
     margin: $space-32 0;
 }
 
+// A display rule on a class outranks the user agent's [hidden], which
+// silently leaves "hidden" things on screen. Settle it once, here.
+[hidden] {
+    display: none !important;
+}
+
 // Off-screen but available to assistive technology.
 .visually-hidden {
     position: absolute;

@@ -34,6 +34,7 @@ jobs:
             "http://localhost:8080/"
             "http://localhost:8080/posts/"
             "http://localhost:8080/about/"
+            "http://localhost:8080/lobster-pots/"
             "http://localhost:8080/tags/"
             "http://localhost:8080${POST_PATH}"
           )
