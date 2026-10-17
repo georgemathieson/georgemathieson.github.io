@@ -444,6 +444,7 @@
                 floor: [150, 122, 88],
                 eye: [58, 44, 40],
                 jumper: [240, 238, 230],
+                sleeve: [212, 208, 196],
                 skin: [232, 190, 158],
                 hat: [223, 120, 70],
                 buoyTop: [223, 120, 70],
@@ -466,6 +467,7 @@
                 floor: [110, 90, 66],
                 eye: [42, 32, 30],
                 jumper: [206, 203, 194],
+                sleeve: [176, 172, 162],
                 skin: [192, 154, 128],
                 hat: [192, 100, 58],
                 buoyTop: [192, 100, 58],
@@ -843,16 +845,27 @@
             var t = theme();
             hull = hullFaces(t.hull, t.floor);
             figure = [
-                { f: boxFaces(0.36, 0.32, 0.28, t.jumper), t: { y: 0.33 } },
-                { f: drumFaces(0.28, 0.32, 10, t.skin), t: { y: 0.72, ry: Math.PI / 10 } },
-                { f: drumFaces(0.29, 0.13, 10, t.hat), t: { y: 0.87, ry: Math.PI / 10 } },
-                { f: coneFaces(0.29, 0.11, 10, t.hat), t: { y: 0.925 } },
-                { f: boxFaces(0.07, 0.075, 0.05, t.eye), t: { x: -0.1, y: 0.74, z: 0.27 } },
-                { f: boxFaces(0.07, 0.075, 0.05, t.eye), t: { x: 0.1, y: 0.74, z: 0.27 } },
-                { f: boxFaces(0.085, 0.2, 0.085, t.jumper, { y: -0.1 }),
-                    t: { x: -0.175, y: 0.42 }, arm: -1 },
-                { f: boxFaces(0.085, 0.2, 0.085, t.jumper, { y: -0.1 }),
-                    t: { x: 0.175, y: 0.42 }, arm: 1 }
+                // Shoulders wider than the head, and the head overlapping
+                // them: a gap here reads as a head floating free, which is
+                // exactly what it looked like.
+                { f: boxFaces(0.52, 0.3, 0.32, t.jumper), t: { y: 0.33 } },
+                // Neck, head and hat each overlap the part below. A gap
+                // anywhere here shows sea through it and the head reads as
+                // floating; a thin neck reads as the head on sticks.
+                { f: drumFaces(0.16, 0.12, 6, t.skin), t: { y: 0.47 } },
+                { f: drumFaces(0.23, 0.34, 10, t.skin), t: { y: 0.64, ry: Math.PI / 10 } },
+                { f: drumFaces(0.25, 0.07, 10, t.hat), t: { y: 0.77, ry: Math.PI / 10 } },
+                { f: coneFaces(0.235, 0.13, 10, t.hat), t: { y: 0.79 } },
+                // Barely proud of the face. Any further out and they read
+                // as goggles stuck on the front.
+                { f: boxFaces(0.05, 0.055, 0.045, t.eye), t: { x: -0.075, y: 0.66, z: 0.205 } },
+                { f: boxFaces(0.05, 0.055, 0.045, t.eye), t: { x: 0.075, y: 0.66, z: 0.205 } },
+                // Outboard of the shoulders, or only a sliver shows and it
+                // looks like a broken panel rather than an arm.
+                { f: boxFaces(0.085, 0.24, 0.085, t.sleeve, { y: -0.12 }),
+                    t: { x: -0.27, y: 0.44 }, arm: -1 },
+                { f: boxFaces(0.085, 0.24, 0.085, t.sleeve, { y: -0.12 }),
+                    t: { x: 0.27, y: 0.44 }, arm: 1 }
             ];
             buoy = buoyFaces(t.buoyTop, t.buoyLow);
             rock = rockFaces(t.rock);
@@ -1134,7 +1147,7 @@
                     local = {
                         x: local.x,
                         y: local.y,
-                        rz: part.arm * (0.1 + cheer * 2.0)
+                        rz: part.arm * (0.12 + cheer * 2.3)
                     };
                 }
                 var composed = [];
